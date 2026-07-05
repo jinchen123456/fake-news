@@ -1,0 +1,2308 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>家族衛士：謠言大作戰</title>
+<style>
+:root {
+  /* 極簡可愛系 — 大量留白、扁平色塊、柔和陰影 */
+  --bg:       #f7faf5;
+  --bg-mid:   #eff5ec;
+  --bg-card:  #ffffff;
+  --bg-hi:    #f1f8ed;
+
+  --orange:   #ffa94d;
+  --orange-d: #f08c1f;
+  --orange-3d:#c96d00;
+
+  --yellow:   #ffd43b;
+  --yellow-d: #f0b400;
+  --yellow-3d:#c79200;
+
+  --green:    #51c151;
+  --green-d:  #3aa63a;
+  --green-3d: #2b7a2b;
+
+  --red:      #ff6b6b;
+  --red-d:    #e5484d;
+  --red-3d:   #b03030;
+
+  --text:     #2f3e33;
+  --text-mid: #5c6f61;
+  --text-soft:#98a89b;
+  --outline:  #2f3e33;
+  --border:   #e6ece4;
+  --shadow:   rgba(47,62,51,0.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { width:100%; height:100%; overflow:hidden; font-family:'Noto Sans TC', system-ui, sans-serif; background:var(--bg); }
+
+.screen { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.hidden { display:none !important; }
+
+/* ─── 共用淺色背景：極簡 + 一抹草地 ─────────────── */
+.meadow, #intro, #final, #gameOver, #leaderboard {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 130% 28% at 50% 112%, rgba(81,193,81,.16), transparent 70%);
+}
+
+#intro { color:var(--text); text-align:center; padding:24px 28px; overflow:hidden; }
+
+/* 背景浮動圓點 */
+.particle { position:absolute; border-radius:50%; pointer-events:none; opacity:0; animation:pfloat linear infinite; }
+@keyframes pfloat { 0%{transform:translateY(110vh) scale(0);opacity:0} 8%{opacity:.35} 92%{opacity:.15} 100%{transform:translateY(-8vh) scale(1);opacity:0} }
+
+/* 光環 */
+.shield-wrap { position:relative; width:116px; height:116px; margin:0 auto 16px; display:flex; align-items:center; justify-content:center; }
+.s-ring { position:absolute; border-radius:50%; border:2px solid rgba(81,193,81,.35); animation:ringPulse 2.8s ease-out infinite; }
+.s-ring:nth-child(1){width:100%;height:100%;animation-delay:0s}
+.s-ring:nth-child(2){width:76%;height:76%;animation-delay:.9s}
+.s-ring:nth-child(3){width:54%;height:54%;animation-delay:1.8s}
+@keyframes ringPulse { 0%{transform:scale(.95);opacity:.9} 70%{transform:scale(1.4);opacity:0} 100%{transform:scale(1.4);opacity:0} }
+.shield-em { font-size:72px; position:relative; z-index:1; animation:shieldFloat 3s ease-in-out infinite; }
+@keyframes shieldFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+/* 吉祥物：小綠芽衛士（極簡版，無描邊） */
+.mascot { position:relative; z-index:1; width:86px; height:100px; animation:shieldFloat 3s ease-in-out infinite; }
+.mascot-leaf {
+  position:absolute; top:-20px; left:50%; font-size:34px; z-index:2;
+  transform-origin:bottom center;
+  animation:leafSway 2.4s ease-in-out infinite;
+}
+@keyframes leafSway { 0%,100%{transform:translateX(-50%) rotate(-14deg)} 50%{transform:translateX(-50%) rotate(10deg)} }
+.mascot-body {
+  position:absolute; bottom:0; width:86px; height:78px;
+  background:linear-gradient(180deg,#7fd96c 0%,#51c151 100%);
+  border-radius:46% 46% 48% 48%;
+  box-shadow:0 8px 20px rgba(81,193,81,.35);
+}
+.mascot-eyes { display:flex; justify-content:center; gap:17px; margin-top:22px; }
+.mascot-eyes span { width:13px; height:17px; background:#2f3e33; border-radius:50%; position:relative; animation:blink 4.5s infinite; }
+.mascot-eyes span::after { content:''; position:absolute; top:3px; left:3px; width:5px; height:6px; background:#fff; border-radius:50%; }
+@keyframes blink { 0%,92%,100%{transform:scaleY(1)} 95%{transform:scaleY(.1)} }
+.mascot-mouth { width:13px; height:7px; border-bottom:2.5px solid #2f3e33; border-radius:0 0 12px 12px; margin:5px auto 0; }
+.mascot-blush { position:absolute; top:43px; width:11px; height:6px; background:rgba(255,140,130,.55); border-radius:50%; }
+.mascot-blush.l { left:12px; } .mascot-blush.r { right:12px; }
+
+.intro-title { font-size:36px; font-weight:900; letter-spacing:3px; color:var(--text); }
+.intro-sub { font-size:15px; color:var(--text-soft); letter-spacing:3px; margin:6px 0 28px; font-weight:600; }
+
+.steps-box {
+  background:var(--bg-card); border-radius:24px;
+  box-shadow:0 6px 24px var(--shadow);
+  padding:18px 24px; max-width:360px; width:100%; margin-bottom:28px;
+}
+.step-row { display:flex; align-items:flex-start; gap:14px; padding:10px 0; }
+.step-row:first-child{padding-top:0} .step-row:last-child{padding-bottom:0}
+.step-num {
+  width:28px; height:28px; border-radius:50%; flex-shrink:0;
+  background:var(--green); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:900; margin-top:4px;
+}
+.step-txt { font-size:16px; line-height:2.1; color:var(--text-mid); white-space:nowrap; }
+
+.btn-start {
+  background:var(--green); color:#fff; border:none;
+  border-radius:999px; padding:19px 60px; font-size:21px; font-weight:900;
+  cursor:pointer; letter-spacing:2px;
+  box-shadow:0 8px 22px rgba(81,193,81,.45);
+  transition:transform .12s, box-shadow .12s;
+  animation:btnBreath 2.4s ease-in-out infinite;
+}
+.btn-start:active { transform:scale(.95); box-shadow:0 4px 12px rgba(81,193,81,.4); animation:none; }
+@keyframes btnBreath { 0%,100%{transform:scale(1)} 50%{transform:scale(1.035)} }
+@keyframes btnPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.03)} }
+
+/* ─── GAME SCREEN ─────────────────────────────────── */
+#game { background:var(--bg); flex-direction:column; justify-content:flex-start; overflow:hidden; }
+
+.game-hdr {
+  width:100%; background:var(--bg-card); padding:12px 18px 10px;
+  box-shadow:0 2px 12px var(--shadow);
+  flex-shrink:0; z-index:5;
+}
+.hdr-row1 { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.gd-label { font-size:13px; color:var(--text-soft); font-weight:800; white-space:nowrap; }
+.gd-track { flex:1; background:var(--bg-mid); border-radius:20px; height:12px; overflow:hidden; }
+.gd-fill { height:100%; border-radius:20px; transition:width .6s cubic-bezier(.25,.46,.45,.94), background .5s; position:relative; overflow:hidden; }
+.gd-fill::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent); animation:shimmer 2s linear infinite; }
+@keyframes shimmer { from{transform:translateX(-100%)} to{transform:translateX(200%)} }
+.score-badge {
+  background:var(--green); color:#fff; border-radius:999px; padding:6px 16px;
+  font-size:15px; font-weight:900; white-space:nowrap; min-width:58px; text-align:center;
+  box-shadow:0 3px 10px rgba(81,193,81,.35);
+}
+.q-counter { font-size:13px; color:var(--text-soft); font-weight:700; white-space:nowrap; }
+
+.progress-dots { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:4px; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:background .3s, transform .25s; }
+.dot.done { background:var(--green); transform:scale(1.1); }
+.dot.cur  { background:var(--yellow); transform:scale(1.35); animation:dotPulse .7s ease-in-out infinite alternate; }
+.dot.fail { background:var(--red); transform:scale(1.1); }
+@keyframes dotPulse { from{opacity:.7} to{opacity:1} }
+
+.streak-zone { min-height:20px; }
+.streak-chip {
+  display:inline-flex; align-items:center; gap:4px;
+  background:var(--bg-hi); color:var(--green-d);
+  border-radius:999px; padding:4px 14px;
+  font-size:13px; font-weight:800;
+  animation:chipBounce .35s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes chipBounce { from{transform:scale(.6)} to{transform:scale(1)} }
+
+/* 計時條 */
+.timer-zone { width:100%; padding:8px 18px 0; flex-shrink:0; }
+.timer-bar-outer { background:var(--bg-mid); border-radius:20px; height:8px; overflow:hidden; }
+.timer-fill { height:100%; border-radius:20px; transition:width .18s linear, background .45s; }
+.timer-digits { text-align:right; font-size:17px; color:var(--text-mid); margin-top:4px; font-weight:900; }
+.timer-urgent { animation:timerJitter .12s infinite alternate; }
+@keyframes timerJitter { from{transform:translateX(-1px)} to{transform:translateX(1px)} }
+
+/* 聊天區 */
+.chat-bg {
+  flex:1; width:100%; padding:16px 18px; overflow-y:auto;
+  display:flex; flex-direction:column; justify-content:flex-end;
+  background-color:var(--bg-mid);
+  background-image:radial-gradient(ellipse 130% 26% at 50% 112%, rgba(81,193,81,.12), transparent 70%);
+}
+
+/* LINE 對話泡泡 */
+.line-wrap { display:flex; gap:10px; align-items:flex-end; max-width:92%; align-self:flex-start; animation:msgSlide .32s cubic-bezier(.25,.46,.45,.94); }
+@keyframes msgSlide { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+.line-av {
+  width:48px; height:48px; border-radius:50%;
+  background:var(--bg-card); display:flex; align-items:center; justify-content:center;
+  font-size:26px; flex-shrink:0;
+  box-shadow:0 2px 8px var(--shadow);
+}
+.line-col { flex:1; min-width:0; }
+.line-name { font-size:13px; color:var(--text-soft); font-weight:700; margin-bottom:5px; padding-left:3px; }
+.line-bubble {
+  background:var(--bg-card); border-radius:6px 22px 22px 22px;
+  padding:18px 20px;
+  font-size:23px; line-height:1.9; color:var(--text);
+  font-weight:500;
+  box-shadow:0 4px 16px var(--shadow);
+}
+.line-foot { display:flex; align-items:center; gap:8px; margin-top:7px; padding-left:3px; }
+.line-time { font-size:12px; color:var(--text-soft); }
+.cat-badge { font-size:12px; font-weight:800; padding:3px 12px; border-radius:999px; background:var(--bg-card); }
+.cat-health { color:#c2571d; }
+.cat-scam   { color:#d6455a; }
+.cat-govt   { color:#2f8a4e; }
+.cat-fake   { color:#7455c9; }
+.cat-custom { color:#b07d1e; }
+.diff-badge { font-size:11px; font-weight:800; padding:2px 10px; border-radius:999px; background:var(--bg-card); border:none; }
+.diff-1 { color:#3aa63a; }
+.diff-2 { color:#d09000; }
+.diff-3 { color:#e5484d; }
+
+/* 答題按鈕 */
+.ans-zone {
+  width:100%; padding:14px 18px 22px; display:flex; gap:12px; flex-shrink:0;
+  background:var(--bg-card);
+  box-shadow:0 -2px 12px var(--shadow);
+}
+.btn-ans {
+  flex:1; padding:20px 8px; border:none; border-radius:999px;
+  font-size:22px; font-weight:900; cursor:pointer;
+  letter-spacing:1px; transition:transform .12s, box-shadow .12s;
+}
+.btn-ans:active { transform:scale(.95); }
+.btn-real { background:var(--green); color:#fff; box-shadow:0 6px 18px rgba(81,193,81,.4); }
+.btn-real:active { box-shadow:0 3px 8px rgba(81,193,81,.35); }
+.btn-fake { background:var(--red); color:#fff; box-shadow:0 6px 18px rgba(255,107,107,.4); }
+.btn-fake:active { box-shadow:0 3px 8px rgba(255,107,107,.35); }
+
+/* ─── FEEDBACK ───────────────────────────────────── */
+#feedback { background:rgba(0,0,0,0); z-index:30; padding:22px; pointer-events:none; }
+#feedback.vis { background:rgba(47,62,51,.4); pointer-events:all; transition:background .2s; backdrop-filter:blur(6px); }
+
+.fb-card {
+  background:var(--bg-card); border-radius:28px; overflow:hidden; max-width:380px; width:100%;
+  box-shadow:0 20px 50px rgba(47,62,51,.22);
+  animation:cardPop .32s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes cardPop { from{opacity:0;transform:scale(.72) translateY(24px)} to{opacity:1;transform:scale(1) translateY(0)} }
+
+.fb-hdr { padding:28px 22px 22px; text-align:center; }
+.fb-hdr.correct { background:var(--green); }
+.fb-hdr.wrong   { background:var(--red); }
+.fb-hdr.timeout { background:var(--yellow-d); }
+.fb-em { font-size:54px; margin-bottom:10px; }
+.fb-title { font-size:22px; font-weight:900; color:#fff; line-height:1.3; }
+
+.fb-body { padding:20px 24px 24px; background:var(--bg-card); }
+.fb-label { font-size:11px; font-weight:900; color:var(--text-soft); letter-spacing:3px; text-transform:uppercase; margin-bottom:6px; }
+.fb-why { font-size:18px; color:var(--text); line-height:1.9; margin-bottom:14px; font-weight:700; }
+.fb-tip {
+  background:var(--bg-hi); border-radius:16px; padding:13px 16px;
+  border-left:4px solid var(--green);
+  font-size:15px; color:var(--text-mid); line-height:1.7; margin-bottom:16px; font-weight:600;
+}
+.btn-fb { width:100%; padding:18px; border:none; border-radius:999px; font-size:19px; font-weight:900; cursor:pointer; transition:transform .12s; }
+.btn-fb:active { transform:scale(.96); }
+.btn-next-q { background:var(--green); color:#fff; box-shadow:0 6px 18px rgba(81,193,81,.4); }
+.btn-fight  { background:var(--red);   color:#fff; box-shadow:0 6px 18px rgba(255,107,107,.4); }
+
+/* ─── DEMON SCREEN（極簡夜空）────────────────────── */
+#demonScreen {
+  background:#403c5c; z-index:40; overflow:hidden;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ctext y='32' font-size='32'%3E%F0%9F%94%A8%3C/text%3E%3C/svg%3E") 8 30, pointer;
+}
+#demonScreen * { cursor:inherit; }
+.hammer-hit {
+  position:absolute; font-size:44px; pointer-events:none; z-index:9;
+  transform-origin:85% 85%;
+  animation:hammerSwing .32s ease-out forwards;
+}
+@keyframes hammerSwing {
+  0%   { transform:rotate(55deg) scale(1.25); opacity:1; }
+  55%  { transform:rotate(-30deg) scale(1); opacity:1; }
+  100% { transform:rotate(-25deg) scale(.95); opacity:0; }
+}
+.d-bg {
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse 130% 30% at 50% 112%, rgba(101,190,120,.28), transparent 70%);
+}
+.d-vignette { display:none; }
+@keyframes dbgPulse { from{opacity:1} to{opacity:.9} }
+@keyframes vPulse { from{opacity:.5} to{opacity:1} }
+
+.d-hud { position:absolute; top:0; left:0; right:0; padding:16px 20px 8px; text-align:center; pointer-events:none; z-index:5; }
+.d-alert {
+  font-size:22px; font-weight:900; color:#fff;
+  animation:dAlert .6s ease-in-out infinite alternate;
+  background:rgba(255,255,255,.14); border-radius:999px; padding:7px 24px;
+  display:inline-block;
+}
+@keyframes dAlert { from{transform:scale(1)} to{transform:scale(1.04)} }
+.d-sub { font-size:14px; color:rgba(255,255,255,.85); font-weight:700; margin-top:8px; }
+
+.d-counter { margin:12px 0 8px; }
+.d-big { font-size:72px; font-weight:900; color:#fff; line-height:1; transition:transform .15s; }
+.d-big.smash { animation:smashNum .2s; }
+@keyframes smashNum { 0%{transform:scale(1.5)} 100%{transform:scale(1)} }
+.d-unit { font-size:15px; color:rgba(255,255,255,.75); font-weight:700; }
+
+.d-tbar-wrap { margin:0 auto 0; max-width:180px; background:rgba(255,255,255,.15); border-radius:20px; height:6px; overflow:hidden; }
+.d-tbar { height:100%; border-radius:20px; transition:width .18s linear, background .3s; }
+
+#demonContainer { position:absolute; inset:0; z-index:4; }
+
+.demon {
+  position:absolute; cursor:pointer; user-select:none; line-height:1;
+  animation:dWiggle .55s infinite alternate;
+  transform-origin:center bottom;
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,.35));
+}
+
+/* 皮克敏醜萌小怪（極簡版：無描邊） */
+.dm-fig { position:relative; width:1em; height:1.18em; pointer-events:none; }
+.dm-leaf {
+  position:absolute; top:-.24em; left:50%; z-index:2; font-size:.5em;
+  transform:translateX(-50%) rotate(-16deg); transform-origin:bottom center;
+  animation:dmLeafSway 1.6s ease-in-out infinite;
+}
+@keyframes dmLeafSway { 0%,100%{transform:translateX(-50%) rotate(-18deg)} 50%{transform:translateX(-50%) rotate(12deg)} }
+.dm-body {
+  position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+  width:1em; height:.94em;
+  border-radius:46% 46% 48% 48%;
+  box-shadow:0 .05em 0 rgba(255,255,255,.28) inset;
+}
+/* 體型變化 */
+.dm-body.dm-s2 { border-radius:50% 50% 45% 45% / 64% 64% 36% 36%; height:1.02em; }
+.dm-body.dm-s3 { width:1.22em; height:.7em; border-radius:48%; }
+.dm-body.dm-s3 .dm-eyes { margin-top:.13em; }
+.dm-body.dm-s4 { width:.8em; height:1.08em; border-radius:44% 44% 50% 50%; }
+.dm-body.dm-s4 .dm-eyes { margin-top:.32em; }
+.dm-body.dm-s5 { border-radius:.2em .2em .26em .26em; height:.88em; }
+/* 獨眼變種 */
+.dm-eyes.dm-one span:last-child { display:none; }
+.dm-eyes.dm-one span { width:.28em; height:.3em; }
+.dm-eyes.dm-one span::after { width:.13em; height:.14em; top:.09em; left:.08em; }
+.dm-eyes.dm-one span:first-child::before { width:.32em; left:-.02em; transform:rotate(12deg); }
+.dm-eyes { display:flex; justify-content:center; gap:.15em; margin-top:.24em; }
+.dm-eyes span { width:.17em; height:.21em; background:#fff; border-radius:50%; position:relative; }
+.dm-eyes span::after { content:''; position:absolute; top:.07em; left:.05em; width:.08em; height:.09em; background:#2f2b45; border-radius:50%; }
+.dm-eyes span:first-child::before,
+.dm-eyes span:last-child::before {
+  content:''; position:absolute; top:-.08em; width:.22em; height:.055em;
+  background:#2f2b45; border-radius:.03em;
+}
+.dm-eyes span:first-child::before { left:-.03em; transform:rotate(24deg); }
+.dm-eyes span:last-child::before  { right:-.03em; transform:rotate(-24deg); }
+.dm-mouth { width:.32em; height:.15em; margin:.06em auto 0; background:#2f2b45; border-radius:0 0 .12em .12em; position:relative; overflow:hidden; }
+.dm-mouth::before, .dm-mouth::after {
+  content:''; position:absolute; top:0; width:.08em; height:.08em; background:#fff;
+  clip-path:polygon(0 0,100% 0,50% 100%);
+}
+.dm-mouth::before { left:.05em; } .dm-mouth::after { right:.05em; }
+@keyframes dWiggle { from{transform:rotate(-7deg) scale(1)} to{transform:rotate(7deg) scale(1.1)} }
+.demon-shd {
+  position:absolute; bottom:-6px; left:50%; transform:translateX(-50%);
+  width:65%; height:10px; background:rgba(0,0,0,.35); border-radius:50%; filter:blur(4px);
+  animation:shdWave .55s infinite alternate;
+}
+@keyframes shdWave { from{transform:translateX(-50%) scaleX(.8)} to{transform:translateX(-50%) scaleX(1.08)} }
+
+.hit-ring { position:absolute; border-radius:50%; border:3px solid rgba(255,212,59,.85); pointer-events:none; transform:translate(-50%,-50%); animation:ringExpand .4s ease-out forwards; }
+@keyframes ringExpand { 0%{width:18px;height:18px;opacity:1} 100%{width:96px;height:96px;opacity:0} }
+
+.score-pop { position:absolute; font-size:20px; font-weight:800; color:#ffd43b; pointer-events:none; animation:sPop .75s ease-out forwards; }
+@keyframes sPop { 0%{opacity:1;transform:translateY(0) scale(.85)} 50%{transform:translateY(-28px) scale(1.1)} 100%{opacity:0;transform:translateY(-58px) scale(.9)} }
+
+.demon-result { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:6; animation:popIn .3s cubic-bezier(.34,1.56,.64,1); }
+@keyframes popIn { from{opacity:0;transform:scale(.55)} to{opacity:1;transform:scale(1)} }
+.dr-icon { font-size:96px; }
+.dr-text { font-size:22px; font-weight:800; margin-top:12px; text-align:center; line-height:1.5; }
+
+/* ─── EXPLOSION INTRO ──────────────────── */
+#demonExplosion {
+  position:absolute; inset:0; z-index:8; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; pointer-events:none;
+  animation:expFade 1.1s ease-out forwards;
+}
+@keyframes expFade { 0%{opacity:1} 75%{opacity:1} 100%{opacity:0;pointer-events:none} }
+.exp-ring { position:absolute; border-radius:50%; animation:expRing .85s ease-out forwards; }
+.exp-ring-1{border:8px solid rgba(255,212,59,.9);animation-delay:0s}
+.exp-ring-2{border:6px solid rgba(255,169,77,.7);animation-delay:.1s}
+.exp-ring-3{border:4px solid rgba(255,255,255,.5);animation-delay:.22s}
+@keyframes expRing {
+  0%  {width:30px;height:30px;opacity:1}
+  100%{width:700px;height:700px;opacity:0}
+}
+.exp-title {
+  font-size:40px; font-weight:900; color:#fff; position:relative; z-index:1;
+  animation:expTitle 1.1s ease-out forwards;
+}
+.exp-sub {
+  font-size:16px; color:rgba(255,255,255,.85); font-weight:700; margin-top:10px; position:relative; z-index:1;
+  animation:expTitle 1.1s ease-out forwards; animation-delay:.08s;
+}
+@keyframes expTitle {
+  0%  {opacity:0;transform:scale(.25) rotate(-8deg)}
+  30% {opacity:1;transform:scale(1.28) rotate(2deg)}
+  55% {opacity:1;transform:scale(1) rotate(0)}
+  85% {opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(1.1)}
+}
+
+/* ─── SCREEN SHAKE ─────────────────────── */
+@keyframes screenShake {
+  0%,100%{transform:translate(0,0)}
+  15%{transform:translate(-6px,3px)}
+  30%{transform:translate(6px,-3px)}
+  50%{transform:translate(-4px,5px)}
+  70%{transform:translate(5px,-4px)}
+  85%{transform:translate(-2px,2px)}
+}
+.do-shake { animation:screenShake .2s ease-out !important; }
+
+/* ─── DEMON HIDDEN (before scatter) ───── */
+.demon-init { opacity:0; pointer-events:none; transition:none !important; }
+
+/* ─── SPLAT ────────────────────────────── */
+.splat { position:absolute; pointer-events:none; animation:splatOut .55s cubic-bezier(.2,.8,.4,1) forwards; transform-origin:center; font-size:68px; }
+@keyframes splatOut {
+  0%  {opacity:1;transform:scale(.25) rotate(-20deg)}
+  45% {opacity:1;transform:scale(1.6) rotate(8deg)}
+  100%{opacity:0;transform:scale(1.9) rotate(15deg)}
+}
+
+/* ─── SPARK PARTICLES ──────────────────── */
+.spark { position:absolute; font-size:20px; pointer-events:none; animation:sparkFly .6s ease-out forwards; }
+@keyframes sparkFly {
+  0%  {opacity:1;transform:translate(0,0) scale(1)}
+  100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(.4)}
+}
+
+/* ─── COMBO TEXT ───────────────────────── */
+.combo-pop {
+  position:absolute; font-weight:900; pointer-events:none; text-align:center;
+  animation:comboRise .9s ease-out forwards; white-space:nowrap; z-index:10;
+}
+@keyframes comboRise {
+  0%  {opacity:0;transform:scale(.5) translateY(10px)}
+  25% {opacity:1;transform:scale(1.2) translateY(-5px)}
+  60% {opacity:1;transform:scale(1) translateY(-25px)}
+  100%{opacity:0;transform:scale(.9) translateY(-55px)}
+}
+
+/* ─── CHAIN EFFECTS ────────────────────── */
+.chain-aoe {
+  position:absolute; border-radius:50%; pointer-events:none;
+  transform:translate(-50%,-50%);
+  border:3px solid rgba(255,212,59,.8);
+  animation:chainAoe .45s ease-out forwards;
+}
+@keyframes chainAoe {
+  0%  {width:20px;height:20px;opacity:1}
+  100%{width:190px;height:190px;opacity:0}
+}
+.chain-pop {
+  position:absolute; font-weight:900; pointer-events:none; text-align:center;
+  color:#ffd43b; white-space:nowrap; z-index:12;
+  animation:chainPop 1.1s ease-out forwards;
+}
+@keyframes chainPop {
+  0%  {opacity:0;transform:scale(.4) translateY(8px)}
+  20% {opacity:1;transform:scale(1.35) translateY(-8px)}
+  55% {opacity:1;transform:scale(1) translateY(-28px)}
+  100%{opacity:0;transform:scale(.9) translateY(-60px)}
+}
+
+/* ─── GAME OVER ──────────────────────────────────── */
+#gameOver { z-index:50; text-align:center; padding:32px; }
+.go-icon { font-size:88px; margin-bottom:16px; animation:shieldFloat 2.5s ease-in-out infinite; }
+.go-title { font-size:28px; font-weight:900; color:var(--text); margin-bottom:8px; letter-spacing:1px; }
+.go-sub { font-size:16px; color:var(--text-mid); line-height:1.9; margin-bottom:24px; white-space:pre-line; }
+.go-stats { display:flex; gap:10px; margin-bottom:28px; }
+.go-stat { flex:1; background:var(--bg-card); border-radius:20px; padding:16px 8px; box-shadow:0 4px 16px var(--shadow); }
+.go-num { font-size:28px; font-weight:900; color:var(--text); }
+.go-lbl { font-size:12px; color:var(--text-soft); margin-top:3px; font-weight:600; }
+.btn-go-retry { background:var(--red); color:#fff; border:none; border-radius:999px; padding:18px; font-size:19px; font-weight:900; cursor:pointer; display:block; width:100%; margin-bottom:12px; box-shadow:0 6px 18px rgba(255,107,107,.4); transition:transform .12s; }
+.btn-go-retry:active { transform:scale(.96); }
+.btn-go-home { background:var(--bg-card); color:var(--text-mid); border:none; border-radius:999px; padding:15px; font-size:16px; cursor:pointer; display:block; width:100%; font-weight:700; box-shadow:0 2px 10px var(--shadow); }
+
+/* ─── FINAL SCREEN ───────────────────────────────── */
+#final { color:var(--text); text-align:center; padding:24px; overflow-y:auto; z-index:45; }
+.final-rank { font-size:26px; font-weight:900; letter-spacing:3px; color:var(--text); }
+#confettiCanvas { position:fixed; inset:0; pointer-events:none; z-index:44; }
+
+.medal-wrap { position:relative; width:120px; height:120px; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; }
+.medal-glow { position:absolute; inset:-24px; border-radius:50%; background:radial-gradient(circle,rgba(255,212,59,.3) 0%,transparent 70%); animation:glowPulse 2s ease-in-out infinite; }
+@keyframes glowPulse { 0%,100%{opacity:.5;transform:scale(.9)} 50%{opacity:1;transform:scale(1.12)} }
+.medal-em { font-size:86px; position:relative; z-index:1; line-height:1; animation:shieldFloat 3s ease-in-out infinite; }
+
+.stars { display:flex; justify-content:center; gap:6px; margin:10px 0; }
+.star { font-size:30px; opacity:.15; }
+.star.lit { opacity:1; animation:starPop .4s cubic-bezier(.34,1.56,.64,1) forwards; }
+@keyframes starPop { from{transform:scale(0) rotate(-30deg)} to{transform:scale(1) rotate(0)} }
+.final-sub { font-size:15px; color:var(--text-mid); margin-bottom:20px; font-weight:600; }
+
+.final-stats { display:flex; gap:8px; margin-bottom:18px; }
+.fs { flex:1; background:var(--bg-card); border-radius:20px; padding:15px 6px; box-shadow:0 4px 16px var(--shadow); }
+.fs-num { font-size:24px; font-weight:900; color:var(--green-d); }
+.fs-lbl { font-size:12px; color:var(--text-soft); margin-top:3px; font-weight:700; }
+
+.share-card { background:var(--bg-card); border-radius:20px; padding:18px; margin-bottom:12px; font-size:15px; line-height:1.9; white-space:pre-line; text-align:left; color:var(--text-mid); box-shadow:0 4px 16px var(--shadow); }
+.btn-copy {
+  background:var(--orange-d); color:#fff; border:none;
+  border-radius:999px; padding:18px; font-size:19px; font-weight:900; cursor:pointer; display:block; width:100%; margin-bottom:12px;
+  box-shadow:0 6px 18px rgba(240,140,31,.4);
+  transition:transform .12s;
+}
+.btn-copy:active { transform:scale(.96); }
+.btn-again { background:var(--bg-card); color:var(--text-mid); border:none; border-radius:999px; padding:15px; font-size:16px; font-weight:700; cursor:pointer; display:block; width:100%; box-shadow:0 2px 10px var(--shadow); }
+
+/* flash overlay */
+#flashOverlay { position:fixed; inset:0; pointer-events:none; z-index:100; opacity:0; }
+
+/* ─── SCORE TOAST ──────────────────────── */
+#toastArea { position:fixed; top:70px; right:14px; z-index:999; pointer-events:none; display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+.score-toast {
+  font-size:18px; font-weight:900; padding:6px 18px; border-radius:999px;
+  display:inline-block; white-space:nowrap;
+  box-shadow:0 4px 14px rgba(47,62,51,.2);
+  animation:toastRise .85s ease-out forwards;
+}
+.toast-plus  { background:var(--green);  color:#fff; }
+.toast-bonus { background:var(--orange); color:#fff; }
+.toast-life  { background:var(--red);    color:#fff; }
+@keyframes toastRise {
+  0%   { opacity:1; transform:translateY(0) scale(1); }
+  35%  { opacity:1; transform:translateY(-20px) scale(1.06); }
+  100% { opacity:0; transform:translateY(-60px) scale(.82); }
+}
+
+/* ─── SCORE BIG POP ────────────────────── */
+#scoreBigPop {
+  position:fixed; inset:0; pointer-events:none; z-index:800;
+  display:flex; align-items:center; justify-content:center;
+}
+.sbp-wrap {
+  font-size:54px; font-weight:900; line-height:1.2;
+  padding:20px 48px; border-radius:32px; text-align:center;
+  box-shadow:0 16px 40px rgba(47,62,51,.25);
+  animation:sbpAnim 1.15s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+.sbp-plus  { background:var(--green);  color:#fff; }
+.sbp-bonus { background:var(--orange); color:#fff; }
+.sbp-life  { background:var(--red);    color:#fff; }
+@keyframes sbpAnim {
+  0%   { opacity:0; transform:scale(.35); }
+  22%  { opacity:1; transform:scale(1.12); }
+  45%  { opacity:1; transform:scale(1); }
+  72%  { opacity:1; transform:translateY(-16px); }
+  100% { opacity:0; transform:translateY(-65px) scale(.85); }
+}
+
+/* ─── WRONG COUNTER ─────────────────── */
+.wrong-row { display:flex; align-items:center; gap:5px; }
+.wm { font-size:19px; transition:transform .25s; color:var(--border); }
+.wm.hit { color:var(--red); transform:scale(1.2); }
+
+.name-row {
+  display:flex; align-items:center; gap:10px;
+  max-width:360px; width:100%; margin-bottom:14px;
+}
+.name-input {
+  flex:1; padding:15px 20px; border:none; border-radius:999px;
+  font-size:17px; font-family:inherit; color:var(--text); background:var(--bg-card);
+  outline:none; box-shadow:0 2px 10px var(--shadow); transition:box-shadow .2s;
+}
+.name-input:focus { box-shadow:0 0 0 2px var(--green), 0 2px 10px var(--shadow); }
+.name-input::placeholder { color:var(--text-soft); }
+.btn-lb-intro {
+  background:var(--bg-card); color:var(--text-mid); border:none;
+  border-radius:999px; padding:15px 18px; font-size:16px; cursor:pointer;
+  white-space:nowrap; font-weight:700; box-shadow:0 2px 10px var(--shadow);
+}
+.btn-lb-intro:active { background:var(--bg-hi); }
+
+/* ─── LEADERBOARD SCREEN ──────────────── */
+#leaderboard { z-index:46; overflow-y:auto; padding:30px 20px; }
+.lb-title { font-size:25px; font-weight:900; color:var(--text); text-align:center; margin-bottom:4px; letter-spacing:2px; }
+.lb-sub { font-size:13px; color:var(--text-soft); text-align:center; margin-bottom:22px; }
+.lb-list { width:100%; max-width:380px; margin:0 auto 22px; }
+.lb-row {
+  display:flex; align-items:center; gap:10px;
+  padding:13px 16px; border-radius:18px; margin-bottom:8px;
+  background:var(--bg-card);
+  box-shadow:0 2px 10px var(--shadow);
+}
+.lb-row.me { box-shadow:0 0 0 2px var(--green), 0 2px 10px var(--shadow); background:var(--bg-hi); }
+.lb-rank { font-size:20px; min-width:32px; text-align:center; font-weight:900; }
+.lb-name { flex:1; font-size:16px; font-weight:700; color:var(--text); }
+.lb-name.me-name { color:var(--green-d); }
+.lb-score { font-size:18px; font-weight:900; color:var(--green-d); }
+.lb-acc { font-size:12px; color:var(--text-soft); margin-left:6px; }
+.lb-date { font-size:11px; color:var(--text-soft); white-space:nowrap; }
+.lb-empty { text-align:center; color:var(--text-soft); font-size:15px; padding:30px 0; }
+.lb-new-badge {
+  font-size:11px; font-weight:900; background:var(--green); color:#fff;
+  border-radius:999px; padding:2px 10px; margin-left:4px; vertical-align:middle;
+}
+.btn-lb-play { background:var(--green); color:#fff; border:none; border-radius:999px; padding:18px; font-size:19px; font-weight:900; cursor:pointer; display:block; width:100%; max-width:380px; margin:0 auto 12px; box-shadow:0 6px 18px rgba(81,193,81,.4); transition:transform .12s; }
+.btn-lb-play:active { transform:scale(.96); }
+.btn-lb-home { background:var(--bg-card); color:var(--text-mid); border:none; border-radius:999px; padding:14px; font-size:15px; cursor:pointer; display:block; width:100%; max-width:380px; margin:0 auto; font-weight:700; box-shadow:0 2px 10px var(--shadow); }
+
+/* ─── TRICK ANALYSIS ──────────────────── */
+.fb-analysis {
+  background:var(--bg-hi); border-radius:16px; padding:13px 16px;
+  margin-bottom:16px; border-left:4px solid var(--orange);
+}
+.fb-analysis-label { font-size:11px; font-weight:900; color:var(--text-soft); letter-spacing:3px; margin-bottom:8px; }
+.trick-row { display:flex; align-items:flex-start; gap:10px; }
+.trick-chip {
+  display:inline-flex; align-items:center; gap:4px; flex-shrink:0;
+  background:var(--bg-card); color:var(--text); border-radius:999px; padding:5px 14px;
+  font-size:13px; font-weight:800; white-space:nowrap;
+  box-shadow:0 1px 6px var(--shadow);
+}
+.trick-chip.real-chip { background:#e2f5da; color:#2b7a2b; }
+.trick-rule { font-size:14px; color:var(--text-mid); line-height:1.6; }
+
+/* ─── ANTI-RUMOR REPORT ─────────────────── */
+.report-section {
+  background:var(--bg-card); border-radius:20px;
+  padding:18px; margin-bottom:14px; text-align:left;
+  box-shadow:0 4px 16px var(--shadow);
+}
+.report-title { font-size:14px; font-weight:900; color:var(--text); margin-bottom:14px; text-align:center; letter-spacing:2px; }
+.report-cat-row { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.report-cat-label { font-size:13px; font-weight:700; color:var(--text-mid); min-width:72px; }
+.report-bar-outer { flex:1; height:8px; background:var(--bg-mid); border-radius:20px; overflow:hidden; }
+.report-bar-fill { height:100%; border-radius:20px; }
+.report-bar-pct { font-size:12px; font-weight:800; color:var(--text-mid); min-width:36px; text-align:right; }
+.report-highlights { display:flex; gap:8px; margin-top:14px; }
+.report-hl { flex:1; border-radius:14px; padding:11px; }
+.report-hl-label { font-size:10px; font-weight:900; letter-spacing:1px; margin-bottom:4px; }
+.report-hl-val { font-size:13px; font-weight:800; line-height:1.5; }
+.report-hl.best { background:rgba(81,193,81,.1); }
+.report-hl.best .report-hl-label { color:var(--green-d); }
+.report-hl.best .report-hl-val { color:var(--green-d); }
+.report-hl.warn { background:rgba(255,107,107,.1); }
+.report-hl.warn .report-hl-label { color:var(--red-d); }
+.report-hl.warn .report-hl-val { color:var(--red-d); }
+</style>
+</head>
+<body>
+
+<canvas id="confettiCanvas" class="hidden"></canvas>
+<div id="flashOverlay"></div>
+<div id="toastArea"></div>
+<div id="scoreBigPop"></div>
+
+<!-- ══ INTRO ══════════════════════════════════════════════ -->
+<div class="screen" id="intro">
+  <div class="shield-wrap">
+    <div class="s-ring"></div><div class="s-ring"></div><div class="s-ring"></div>
+    <div class="mascot">
+      <div class="mascot-leaf">🍃</div>
+      <div class="mascot-body">
+        <div class="mascot-eyes"><span></span><span></span></div>
+        <div class="mascot-mouth"></div>
+        <div class="mascot-blush l"></div><div class="mascot-blush r"></div>
+      </div>
+    </div>
+  </div>
+  <div class="intro-title">家族衛士</div>
+  <div class="intro-sub">謠言大作戰</div>
+  <div class="steps-box">
+    <div class="step-row"><div class="step-num">1</div><div class="step-txt">判斷訊息真假，答對 <b>+10分</b></div></div>
+    <div class="step-row"><div class="step-num">2</div><div class="step-txt">連對2題 ⚡ 打惡魔賺加分</div></div>
+    <div class="step-row"><div class="step-num">3</div><div class="step-txt">答錯 <b>-10分</b>，錯3次或歸零結束</div></div>
+  </div>
+  <div class="name-row">
+    <input class="name-input" id="playerNameInput" type="text" maxlength="10" placeholder="輸入你的名字上榜 ✍️">
+    <button class="btn-lb-intro" onclick="showLeaderboard(false)">🏆 排行榜</button>
+  </div>
+  <button class="btn-start" onclick="startGame()">開始守護 🛡️</button>
+</div>
+
+<!-- ══ GAME ════════════════════════════════════════════════ -->
+<div class="screen hidden" id="game">
+  <div class="game-hdr">
+    <div class="hdr-row1">
+      <div class="gd-label">答錯</div>
+      <div class="wrong-row" id="wrongRow">
+        <span class="wm" id="wm0">○</span>
+        <span class="wm" id="wm1">○</span>
+        <span class="wm" id="wm2">○</span>
+      </div>
+      <div class="score-badge" id="scoreBadge">0分</div>
+      <div class="q-counter" id="qCounter">1/10</div>
+    </div>
+    <div class="progress-dots" id="progDots"></div>
+    <div class="streak-zone" id="streakZone"></div>
+  </div>
+  <div class="timer-zone">
+    <div class="timer-bar-outer"><div class="timer-fill" id="timerFill" style="width:100%"></div></div>
+    <div class="timer-digits" id="timerDigits">12 秒</div>
+  </div>
+  <div class="chat-bg" id="chatBg"></div>
+  <div class="ans-zone">
+    <button class="btn-ans btn-real" onclick="answer(true)">✅ 真的</button>
+    <button class="btn-ans btn-fake" onclick="answer(false)">❌ 假的</button>
+  </div>
+</div>
+
+<!-- ══ FEEDBACK ═══════════════════════════════════════════ -->
+<div class="screen hidden" id="feedback">
+  <div class="fb-card" id="fbCard">
+    <div class="fb-hdr" id="fbHdr">
+      <div class="fb-em" id="fbEm"></div>
+      <div class="fb-title" id="fbTitle"></div>
+    </div>
+    <div class="fb-body">
+      <div class="fb-label">說明</div>
+      <div class="fb-why" id="fbWhy"></div>
+      <div class="fb-label">小提示</div>
+      <div class="fb-tip" id="fbTip"></div>
+      <div class="fb-analysis">
+        <div class="fb-analysis-label">謠言手法分析</div>
+        <div class="trick-row">
+          <span class="trick-chip" id="trickChip"></span>
+          <span class="trick-rule" id="trickRule"></span>
+        </div>
+      </div>
+      <button class="btn-fb" id="fbBtn" onclick="afterFeedback()"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DEMON SCREEN ════════════════════════════════════════ -->
+<div class="screen hidden" id="demonScreen">
+  <div class="d-bg"></div>
+  <div class="d-vignette"></div>
+  <div class="d-hud">
+    <div class="d-alert" id="dAlert">⚡ 加分挑戰！</div>
+    <div class="d-sub">點擊惡魔 +2分，連鎖爆炸賺更多！👊</div>
+    <div class="d-counter">
+      <div class="d-big" id="dBigNum">0</div>
+      <div class="d-unit">隻謠言惡魔</div>
+    </div>
+    <div class="d-tbar-wrap"><div class="d-tbar" id="dTbar" style="width:100%"></div></div>
+  </div>
+  <!-- 爆炸入場 -->
+  <div id="demonExplosion" class="hidden">
+    <div class="exp-ring exp-ring-1"></div>
+    <div class="exp-ring exp-ring-2"></div>
+    <div class="exp-ring exp-ring-3"></div>
+    <div class="exp-title">⚡ 加分挑戰！</div>
+    <div class="exp-sub">連答2題獎勵 — 打惡魔賺分數！</div>
+  </div>
+  <div id="demonContainer"></div>
+</div>
+
+<!-- ══ GAME OVER ═══════════════════════════════════════════ -->
+<div class="screen hidden" id="gameOver">
+  <div class="go-icon">💔</div>
+  <div class="go-title">家族守護失敗</div>
+  <div class="go-sub" id="goSub"></div>
+  <div class="go-stats">
+    <div class="go-stat"><div class="go-num" id="goCorrect">0</div><div class="go-lbl">答對題數</div></div>
+    <div class="go-stat"><div class="go-num" id="goScore">0</div><div class="go-lbl">最終得分</div></div>
+    <div class="go-stat"><div class="go-num" id="goDemons">0</div><div class="go-lbl">打倒惡魔</div></div>
+  </div>
+  <button class="btn-go-retry" onclick="restart()">🔄 重新守護</button>
+  <button class="btn-go-home" onclick="restart()">回到首頁</button>
+</div>
+
+<!-- ══ FINAL ═══════════════════════════════════════════════ -->
+<div class="screen hidden" id="final">
+  <div class="medal-wrap"><div class="medal-glow"></div><div class="medal-em" id="finalMedal"></div></div>
+  <div class="final-rank" id="finalRank"></div>
+  <div class="stars" id="starsRow"></div>
+  <div class="final-sub" id="finalSub"></div>
+  <div class="final-stats">
+    <div class="fs"><div class="fs-num" id="fCorrect">0</div><div class="fs-lbl">答對</div></div>
+    <div class="fs"><div class="fs-num" id="fAcc">0%</div><div class="fs-lbl">正確率</div></div>
+    <div class="fs"><div class="fs-num" id="fScore">0</div><div class="fs-lbl">得分</div></div>
+    <div class="fs"><div class="fs-num" id="fDemons">0</div><div class="fs-lbl">打倒惡魔</div></div>
+  </div>
+  <div id="reportSection" class="report-section hidden"></div>
+  <div class="share-card" id="shareCard"></div>
+  <button class="btn-copy" onclick="copyShare()">📋 複製分享給家人</button>
+  <button class="btn-copy" style="background:var(--orange-d);margin-bottom:12px" onclick="showLeaderboard(true)">🏆 上榜 / 看排行榜</button>
+  <button class="btn-again" onclick="restart()">再玩一次</button>
+</div>
+
+<!-- ══ LEADERBOARD ═════════════════════════════════════════ -->
+<div class="screen hidden" id="leaderboard">
+  <div class="lb-title">🏆 家族防謠排行榜</div>
+  <div class="lb-sub" id="lbSub">看看誰是家族謠言剋星！</div>
+  <div class="lb-list" id="lbList"></div>
+  <button class="btn-lb-play" onclick="restart()">🔄 再玩一次挑戰第一</button>
+  <button class="btn-lb-home" onclick="show('intro')">← 回首頁</button>
+</div>
+
+<script>
+/* ═══════════════════════════════════
+   QUESTION BANK
+═══════════════════════════════════ */
+const QS = [
+/* ── DIFFICULTY 1：簡單（34題）── */
+{ diff:1, sender:'阿姨', av:'👩', time:'上午 08:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'【警告】吃香蕉配牛奶會中毒！兩種食物絕對不能同時吃，已有人送醫！請趕快告訴家人！',
+  real:false, why:'純屬謠言！香蕉和牛奶一起食用完全安全，不會中毒，這是流傳多年的錯誤說法。',
+  tip:'💡 食品謠言常誇大危險，可查衛福部食藥署官網求證。' },
+{ diff:1, sender:'鄰居轉傳', av:'👵', time:'上午 10:45', cat:'健康謠言', catCls:'cat-health',
+  msg:'吃鳳梨不能配蝦子！會產生砒霜中毒，這是醫院急診室醫生親口說的！',
+  real:false, why:'完全是謠言！鳳梨和蝦子一起吃不會產生砒霜，這種化學反應在正常飲食中不會發生。',
+  tip:'💡「醫生說的」常被謠言濫用，請找原始出處或查食藥署資料庫。' },
+{ diff:1, sender:'好友', av:'👦', time:'下午 03:20', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'🎉恭喜！您的手機號碼抽中iPhone 16 Pro！點選連結立即領獎：http://lucky-prize.xyz/tw',
+  real:false, why:'假抽獎詐騙！陌生連結可能竊取個資或安裝惡意程式，千萬別點。',
+  tip:'💡 天上不會掉禮物！陌生連結一律不點，直接封鎖。' },
+{ diff:1, sender:'媽媽', av:'👩‍🦳', time:'上午 07:55', cat:'習俗謠言', catCls:'cat-custom',
+  msg:'農曆七月千萬不要去海邊！好兄弟多，這個月出意外的特別多！記得告訴孩子！',
+  real:false, why:'民間習俗說法，沒有科學根據。海邊安全要注意，但與農曆七月無關，事故率並未特別高。',
+  tip:'💡 用科學角度看待風險比迷信更有保障，海邊安全重點是技能和警覺性。' },
+{ diff:1, sender:'朋友轉傳', av:'👤', time:'下午 01:30', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'【緊急通知】您的健保卡資料外洩，請立即前往ATM操作解除異常，否則將被罰款3萬元！',
+  real:false, why:'ATM詐騙！任何政府機關絕對不會叫你去ATM操作，這是冒充政府的詐騙手法。',
+  tip:'💡 任何叫你去ATM的通知都是詐騙，立刻掛掉並撥165反詐騙專線！' },
+{ diff:1, sender:'阿嬤', av:'👵', time:'上午 08:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'每天喝一杯醋可以軟化血管、清除血液中的廢物，預防心臟病！這是中醫養生秘方！',
+  real:false, why:'喝醋能軟化血管是謠言！人體血液有酸鹼調節機制，喝醋無法影響血管，過量反而傷胃。',
+  tip:'💡 心臟病預防請諮詢心臟科醫師，規律運動和均衡飲食才是正解。' },
+{ diff:1, sender:'群組轉傳', av:'📱', time:'下午 04:15', cat:'假新聞', catCls:'cat-fake',
+  msg:'【獨家】台灣明年起全面禁止使用現金！政府將強制所有商家改用數位支付！',
+  real:false, why:'純屬謠言！台灣沒有這樣的政策，中央銀行從未宣布任何廢除現金的計畫。',
+  tip:'💡「獨家」、「緊急」標題要特別謹慎，查中央銀行或行政院官方聲明。' },
+{ diff:1, sender:'媽媽', av:'👩‍🦳', time:'下午 05:45', cat:'習俗謠言', catCls:'cat-custom',
+  msg:'在電視旁邊放仙人掌可以吸收電磁波！保護全家人的健康，快去買幾盆！',
+  real:false, why:'仙人掌無法吸收電磁波！這是廣泛流傳的錯誤說法，沒有任何科學實驗能支持。',
+  tip:'💡 電磁波謠言很多，想了解真實資訊可查NCC（國家通訊傳播委員會）官網。' },
+{ diff:1, sender:'里長廣播', av:'📢', time:'上午 08:15', cat:'假新聞', catCls:'cat-fake',
+  msg:'驚！科學家最新研究：喝冷水會讓癌細胞快速增長！從今天起只能喝熱水才安全！',
+  real:false, why:'完全是謠言！喝水的溫度不影響癌細胞生長，這種說法完全沒有科學根據。',
+  tip:'💡「驚！」開頭的健康訊息幾乎都是謠言，正確癌症資訊請找癌症希望基金會。' },
+{ diff:1, sender:'好友', av:'🧑', time:'下午 03:00', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'緊急：您的孩子在學校受傷了，現正處理中，請立刻撥打0912-XXX-XXX聯繫現場老師！',
+  real:false, why:'假冒學校的綁架詐騙！請掛掉後，直接撥孩子的手機或學校正式電話確認。',
+  tip:'💡 接到孩子出事的消息先冷靜，直接聯絡孩子本人或學校，不要回撥來電號碼。' },
+{ diff:1, sender:'朋友', av:'👩‍🦱', time:'上午 09:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'每天早上空腹喝500cc溫水可以洗腸清毒、延年益壽！這是日本醫師大力推薦的養生法！',
+  real:false, why:'補充水分確實有益，但「洗腸清毒」的說法沒有科學根據。「日本醫師推薦」也是謠言慣用手法。',
+  tip:'💡 養生方法請諮詢家醫科，適量喝水好，但單靠一個動作無法清毒。' },
+{ diff:1, sender:'群組轉傳', av:'📰', time:'下午 07:00', cat:'假新聞', catCls:'cat-fake',
+  msg:'【轉傳救人】吃雞蛋配味精會致癌！這是衛生署發現的秘密，請立刻告訴所有家人！',
+  real:false, why:'謠言！雞蛋和味精一起食用不會致癌，「衛生署發現的秘密」是謠言慣用的偽裝手法。',
+  tip:'💡「轉傳救人」的格式幾乎都是謠言，先查食藥署再決定要不要轉傳。' },
+{ diff:1, sender:'LINE通知', av:'📲', time:'上午 10:00', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'LINE官方通知：您的帳號異常，24小時內未驗證將永久停用。請點此驗證：line-verify-tw.net',
+  real:false, why:'假冒LINE官方的詐騙！LINE不會透過訊息要你點陌生連結，這是釣魚網站。',
+  tip:'💡 疑似官方通知，直接在App內看官方通知欄，不要點訊息內的連結！' },
+{ diff:1, sender:'健康轉傳', av:'🌿', time:'下午 12:00', cat:'假新聞', catCls:'cat-fake',
+  msg:'5G基地台正在釋放有害電磁波！已有研究證明5G導致腦瘤率上升！請關掉手機的5G功能！',
+  real:false, why:'完全是謠言！WHO及各國電信主管機關均確認5G符合安全標準，目前沒有證據顯示5G危害健康。',
+  tip:'💡 5G謠言在全球廣泛流傳，可查NCC或WHO官網了解正確訊息。' },
+{ diff:1, sender:'阿姨轉傳', av:'👩', time:'上午 09:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'吃大蒜可以殺死所有細菌和病毒！每天吃一頭生大蒜，感冒、流感、癌症全部不會找上門！',
+  real:false, why:'大蒜含有抗菌成分大蒜素，但「殺死所有病毒」「預防癌症」是嚴重誇大，不能取代醫療。',
+  tip:'💡 大蒜可以做為健康飲食一部分，但無法替代疫苗或醫療，有病請看醫生。' },
+{ diff:1, sender:'鄰居', av:'👴', time:'下午 02:30', cat:'假新聞', catCls:'cat-fake',
+  msg:'政府已確認：今年下半年起健保全面停止給付，所有看診費用改為自費！快告訴家人準備！',
+  real:false, why:'完全是謠言！健保局從未宣布停止給付，這種訊息會造成社會恐慌，是典型假新聞。',
+  tip:'💡 健保相關疑問請撥健保署1955免費諮詢，或查健保署官網。' },
+{ diff:1, sender:'Line群組', av:'📱', time:'下午 08:00', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'🎊LINE免費贈送1000點數！只要轉傳這則訊息給10位好友，明天點數就會自動匯入！快轉傳！',
+  real:false, why:'假LINE點數詐騙！LINE不會以這種方式贈送點數，這是誘使大量轉傳的詐騙手法。',
+  tip:'💡 任何要求「轉傳N人」才能獲得好處的訊息，幾乎都是謠言或詐騙。' },
+{ diff:1, sender:'好友轉傳', av:'🧑', time:'上午 11:15', cat:'健康謠言', catCls:'cat-health',
+  msg:'燙傷後立刻用牙膏塗抹患處！牙膏含清涼成分可以止痛消炎！醫師都這樣建議！',
+  real:false, why:'燙傷塗牙膏是危險的錯誤做法！牙膏可能導致傷口感染和病情惡化，正確做法是沖冷水。',
+  tip:'💡 燙傷正確處理：沖冷水15-30分鐘→脫除衣物→用乾淨布覆蓋→送醫院。絕對不能塗牙膏或醬油！' },
+{ diff:1, sender:'親戚', av:'👩‍🦳', time:'下午 04:00', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'【中獎通知】恭喜您被電腦隨機選中，獲得台灣彩券頭獎500萬元！請提供帳號以便匯款。',
+  real:false, why:'假中獎詐騙！任何要求提供帳號才能領獎的通知都是詐騙，台灣彩券不會主動通知。',
+  tip:'💡 真正的彩券中獎要持票親自兌領，不會電話或訊息通知後要求提供帳號。' },
+{ diff:1, sender:'媽媽', av:'👩‍🦳', time:'上午 08:45', cat:'習俗謠言', catCls:'cat-custom',
+  msg:'晚上剪指甲會招鬼！這是老祖宗留下來的智慧，一定有道理，絕對不要在夜裡剪指甲！',
+  real:false, why:'純屬迷信。這個說法可能源自古時夜間光線不足容易受傷，與鬼神毫無關係。',
+  tip:'💡 許多習俗謠言源自古代的生活條件，用現代眼光重新理解即可。' },
+{ diff:1, sender:'群組轉傳', av:'📰', time:'下午 05:00', cat:'假新聞', catCls:'cat-fake',
+  msg:'【緊急】颱風來臨前一定要買鹽！因為颱風會污染水源，鹽水可以消毒自來水！請立即囤貨！',
+  real:false, why:'謠言！鹽水無法有效消毒自來水，台灣自來水廠有完整消毒程序。囤鹽反而製造搶購恐慌。',
+  tip:'💡 颱風前準備飲用水是正確的，但要買瓶裝水，不是用鹽水取代。' },
+{ diff:1, sender:'朋友', av:'👩‍🦱', time:'下午 07:30', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'我是警察刑事局，您被舉報洗錢，現在帳戶已被凍結。請於1小時內撥打此號碼配合調查。',
+  real:false, why:'假冒警察的詐騙！警察不會以電話或LINE要求配合調查，應直接掛掉去警局查詢。',
+  tip:'💡 接到可疑的警察、檢察官電話，掛掉後撥165確認，或直接去派出所詢問。' },
+{ diff:1, sender:'轉傳訊息', av:'📩', time:'上午 06:50', cat:'健康謠言', catCls:'cat-health',
+  msg:'吃榴槤後喝可樂會在肚子裡爆炸！已有人因此死亡！請告訴所有喜歡吃榴槤的朋友！',
+  real:false, why:'純屬謠言！榴槤和可樂在胃裡不會產生爆炸性反應，這種說法完全沒有醫學根據。',
+  tip:'💡 食物搭配禁忌謠言非常多，查食藥署「食品謠言」資料庫可找到大量闢謠說明。' },
+{ diff:1, sender:'親友群組', av:'👨‍👩‍👧', time:'上午 10:20', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'快遞未取件通知：您有一件包裹待取，請點連結查看：https://delivery-tw-check.net/track',
+  real:false, why:'假冒快遞的釣魚詐騙！正規快遞公司不會傳送要你點陌生連結的訊息。',
+  tip:'💡 收到陌生快遞通知，直接到官方網站或電話查詢，不要點訊息內的連結。' },
+{ diff:1, sender:'阿公', av:'👴', time:'下午 01:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'每天吃生薑可以讓白髮變黑！這是百年傳統秘方，很多老人家靠這個恢復黑髮！',
+  real:false, why:'薑對頭皮血液循環可能略有幫助，但「讓白髮變黑」的說法是誇大其詞，沒有充分科學證據。',
+  tip:'💡 白髮成因複雜，若擔心頭髮問題，請諮詢皮膚科或毛髮專科醫師。' },
+{ diff:1, sender:'媽媽', av:'👩‍🦳', time:'上午 07:30', cat:'假新聞', catCls:'cat-fake',
+  msg:'驚！科學家發現：月亮圓的時候血壓最高，最容易中風！農曆十五前後要特別小心！',
+  real:false, why:'謠言！目前沒有可靠科學證據顯示月相與血壓或中風有關。這是把民間傳說當科學的謠言。',
+  tip:'💡 中風預防重點是控制血壓、規律用藥、戒菸，和月亮無關。' },
+{ diff:1, sender:'LINE群組', av:'📲', time:'下午 09:00', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'衛生局特別公告：持健保卡可免費領取防癌保健組合，名額有限！請加此LINE官方帳號申請：@health-free88',
+  real:false, why:'假冒政府的詐騙！衛生局不會透過LINE陌生帳號發送這類公告，此帳號可能騙取個資。',
+  tip:'💡 政府補助請到官方網站、撥打官方電話或親至政府機關詢問，不要加陌生LINE帳號。' },
+{ diff:1, sender:'轉傳', av:'👤', time:'上午 11:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'消夜吃西瓜會中毒！西瓜晚上放在空氣中細菌大量繁殖，已有人吃了送加護病房！',
+  real:false, why:'謠言！切開的西瓜長時間放置確實可能滋生細菌，但這和時間段無關，應妥善冷藏。',
+  tip:'💡 食物保存的關鍵是「冷藏」而非「不在特定時間吃」，切開的水果要蓋好冷藏。' },
+{ diff:1, sender:'親戚', av:'👩', time:'下午 03:15', cat:'健康謠言', catCls:'cat-health',
+  msg:'吃木瓜可以豐胸！這是天然激素，每天吃半顆效果非常顯著！女生一定要吃！',
+  real:false, why:'謠言！木瓜不含任何可讓胸部變大的激素，這是誇大其詞的商業宣傳說法。',
+  tip:'💡 任何宣稱食物能快速改變身體特定部位的說法，大多是謠言，請保持懷疑。' },
+{ diff:1, sender:'群組', av:'📱', time:'上午 08:00', cat:'假新聞', catCls:'cat-fake',
+  msg:'【轉傳】台灣將實施新法：每個家庭必須繳納「數位稅」，每月500元，否則無法使用網路！',
+  real:false, why:'完全是謠言！台灣並無此類數位稅法案，NCC及行政院均未提出任何此類計畫。',
+  tip:'💡 涉及稅收或法規的訊息，請查行政院、立法院官網或聯繫地方政府核實。' },
+{ diff:1, sender:'朋友', av:'🧑', time:'下午 06:00', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'我是你的孫子！我在外地出車禍，手機摔壞了，急需10萬元醫療費，請匯款到這個帳號...',
+  real:false, why:'假冒親人的詐騙（俗稱「假親人詐騙」）！請先掛掉，直接撥孫子的手機確認。',
+  tip:'💡 接到親人出事要匯款的電話，一定要掛掉後用熟悉的號碼直接聯繫當事人確認。' },
+{ diff:1, sender:'好友', av:'👦', time:'下午 04:30', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'國稅局通知：您有一筆未申報收入，已開立罰單共47,200元。請點此付款：taxfine-tw.online',
+  real:false, why:'假冒國稅局的網路詐騙！國稅局罰單會以正式公文寄達，不會透過LINE或陌生連結通知。',
+  tip:'💡 收到疑似國稅局通知，請撥打國稅局1988服務電話確認，不要點陌生連結付款。' },
+{ diff:1, sender:'群組轉傳', av:'📩', time:'上午 09:45', cat:'假新聞', catCls:'cat-fake',
+  msg:'快傳！地震來了要躲在門框下面！這是地震防護最重要的知識，請告訴所有家人！',
+  real:false, why:'地震躲門框是過時觀念！現在建議「趴下、掩護、穩住」（Drop, Cover, Hold on），躲在堅固桌子下面或靠內牆蹲下。',
+  tip:'💡 正確地震應變：趴下→掩護（桌下或蹲靠牆）→穩住，離門窗和重物越遠越好。' },
+{ diff:1, sender:'轉傳', av:'📰', time:'上午 10:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'不能吃飯後立刻喝茶！茶葉鞣酸會跟蛋白質結合，造成嚴重消化不良，這是中醫古法！',
+  real:false, why:'飯後立刻喝大量茶確實可能輕微影響鐵質吸收，但「造成嚴重消化不良」的說法是誇大的。',
+  tip:'💡 適度飲茶對健康有益，但大量攝取可能影響鐵質吸收，尤其貧血者要注意。' },
+
+/* ── DIFFICULTY 2：中等（33題）── */
+{ diff:2, sender:'衛生局', av:'🏥', time:'上午 10:00', cat:'政府公告', catCls:'cat-govt',
+  msg:'衛福部公告：65歲以上長者今年可免費施打流感疫苗，請攜健保卡至衛生所或合約診所預約接種。',
+  real:true, why:'這是真實的政府政策！衛福部每年開放老年人免費流感疫苗，是正確的公衛資訊。',
+  tip:'💡 政府公衛政策可在衛福部官網或撥1922查詢。' },
+{ diff:2, sender:'健保署', av:'💊', time:'上午 11:00', cat:'政府公告', catCls:'cat-govt',
+  msg:'健保署提醒：50歲以上成人每兩年可免費做一次大腸癌糞便潛血篩檢，請攜健保卡至合約院所。',
+  real:true, why:'真實的健保福利！政府確實提供國民免費癌症篩檢，大腸癌早期發現治癒率超過90%。',
+  tip:'💡 四大癌症篩檢（乳癌、子宮頸癌、大腸癌、口腔癌）都有健保補助，記得定期做！' },
+{ diff:2, sender:'疾管署', av:'🦠', time:'上午 11:30', cat:'政府公告', catCls:'cat-govt',
+  msg:'疾管署公告：本季腸病毒疫情升溫，提醒家長注意幼兒手口衛生，出現重症前兆徵兆應立即就醫。',
+  real:true, why:'這是疾管署的真實公衛提醒！腸病毒每年夏季流行，注意幼兒衛生是正確的預防措施。',
+  tip:'💡 腸病毒資訊可查疾管署官網或撥打1922疾病通報及諮詢專線。' },
+{ diff:2, sender:'食藥署', av:'🔬', time:'上午 10:30', cat:'政府公告', catCls:'cat-govt',
+  msg:'食藥署提醒：購買保健食品請認明「健康食品認證」小綠人標章，避免購買來路不明產品。',
+  real:true, why:'這是食藥署真實的消費者提醒！認明小綠人標章是保護自己的正確方法。',
+  tip:'💡 保健食品標章可在食藥署官網查驗，防止花大錢買到無效甚至有害產品。' },
+{ diff:2, sender:'台電公告', av:'⚡', time:'上午 09:30', cat:'政府公告', catCls:'cat-govt',
+  msg:'台電公告：民眾可撥打台電客服1911，申請節能補貼方案，符合條件每月可折扣電費50元。',
+  real:true, why:'台電1911是官方客服，節能補貼方案確實存在，是政府推動節能的真實政策。',
+  tip:'💡 台電相關補貼可撥1911確認，或至台電官網查詢最新方案。' },
+{ diff:2, sender:'媽媽', av:'👩‍🦳', time:'上午 09:15', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'您好，我是台灣銀行客服。您的帳戶疑似遭盜用，請立刻撥打0800-XXX-XXX，否則帳戶今日凍結。',
+  real:false, why:'典型的假冒銀行詐騙！真正的銀行不會要求你回撥陌生電話，應直接掛掉再撥銀行卡背面電話。',
+  tip:'💡 接到可疑電話就掛掉，用銀行卡背面的官方電話回撥確認。' },
+{ diff:2, sender:'健康轉傳', av:'🌿', time:'下午 12:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'洗手不用用肥皂！最新研究顯示用清水洗手就能去除99%的細菌，肥皂反而破壞皮膚！',
+  real:false, why:'錯誤！WHO明確建議用肥皂搓洗20秒才能有效清除病毒和細菌，清水洗手效果遠遠不足。',
+  tip:'💡 正確洗手：肥皂搓洗20秒，是預防傳染病最有效、最便宜的方法。' },
+{ diff:2, sender:'朋友轉傳', av:'👤', time:'上午 10:15', cat:'健康謠言', catCls:'cat-health',
+  msg:'研究發現：每天走一萬步才算達到健康標準，不到一萬步等於沒有運動效果！',
+  real:false, why:'「每天1萬步」其實是1960年代日本計步器的行銷口號，並非醫學標準。研究顯示7000-8000步就有明顯健康效益。',
+  tip:'💡 運動重點在於規律性，步數目標應依個人體能設定，可諮詢家醫科醫師。' },
+{ diff:2, sender:'媽媽', av:'👩‍🦳', time:'上午 07:00', cat:'習俗謠言', catCls:'cat-custom',
+  msg:'坐月子絕對不能洗頭！這是老祖宗的智慧，洗頭會讓風邪進入頭皮，老了會頭痛！',
+  real:false, why:'現代醫學不支持這個說法。坐月子期間適當清潔是必要的，長時間不洗頭反而可能增加感染風險。',
+  tip:'💡 現代坐月子已有科學依據，保暖、休息、適當清潔都很重要，可諮詢婦產科醫師。' },
+{ diff:2, sender:'群組轉傳', av:'📱', time:'下午 03:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'糖尿病患者絕對不能吃任何水果！水果含糖量太高，吃了血糖必然飆高！',
+  real:false, why:'並非絕對禁止！糖尿病患者可以適量吃低升糖指數的水果（如芭樂、蘋果），關鍵是份量控制。',
+  tip:'💡 糖尿病的飲食管理應由營養師個別指導，並非所有水果都要禁止。' },
+{ diff:2, sender:'朋友', av:'👩‍🦱', time:'上午 09:45', cat:'健康謠言', catCls:'cat-health',
+  msg:'流鼻血了！快仰頭！仰頭可以讓血往回流，防止失血過多，這是大家都知道的急救法！',
+  real:false, why:'錯誤！仰頭會讓血液流入喉嚨，可能嗆到或嘔吐。正確做法是身體微向前傾，捏住鼻翼10-15分鐘。',
+  tip:'💡 流鼻血正確處理：坐直略前傾，捏鼻翼（軟的部分）10-15分鐘，不要仰頭。' },
+{ diff:2, sender:'轉傳', av:'📩', time:'下午 02:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'晚上不能吃水果！晚上吃水果的糖分會直接轉化成脂肪，讓人變胖！',
+  real:false, why:'謠言！體重管理的關鍵是一天的總熱量攝取，而非進食時間。適量的水果任何時候吃都健康。',
+  tip:'💡 水果含有豐富纖維和維生素，適量食用沒有「不能在晚上吃」的限制。' },
+{ diff:2, sender:'親戚', av:'👩', time:'上午 11:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'血型決定性格！A型謹慎、B型任性、O型領袖、AB型神秘。這是日本科學家研究證明的！',
+  real:false, why:'血型與性格沒有科學關聯！日本的血型性格說法並無嚴謹科學依據，只是流行文化現象。',
+  tip:'💡 性格受基因、環境、成長經歷等多因素影響，血型只決定紅血球表面抗原。' },
+{ diff:2, sender:'轉傳訊息', av:'📰', time:'下午 05:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'益生菌是萬能的！每天吃益生菌可以治療憂鬱症、增強免疫力、改善過敏，效果顯著！',
+  real:false, why:'益生菌確實對腸道健康有益，但「治療憂鬱症」等說法過於誇大，尚無足夠臨床證據支持這些廣泛療效。',
+  tip:'💡 益生菌可做為輔助保健，但不能取代藥物治療，任何心理疾病請諮詢精神科。' },
+{ diff:2, sender:'好友', av:'🧑', time:'上午 10:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'微波爐會破壞食物的營養素並產生致癌物質！用微波加熱的食物吃了很危險！',
+  real:false, why:'謠言！微波爐使用非電離輻射加熱食物，不會產生致癌物質，也不比其他烹調方式破壞更多營養素。',
+  tip:'💡 微波爐是安全的廚房電器，但要使用微波爐專用容器，避免塑膠或金屬容器。' },
+{ diff:2, sender:'群組', av:'📱', time:'下午 01:15', cat:'健康謠言', catCls:'cat-health',
+  msg:'天天喝咖啡傷骨骼！咖啡因會大量流失鈣質，長期喝咖啡的人骨質疏鬆風險大增！',
+  real:false, why:'適量飲用咖啡（每天1-2杯）對骨骼的影響很小，只要飲食中鈣質攝取充足即可平衡。過量才有風險。',
+  tip:'💡 咖啡適量飲用對多數健康成人是安全的，但骨質疏鬆患者可諮詢醫師評估攝取量。' },
+{ diff:2, sender:'媽媽', av:'👩‍🦳', time:'上午 06:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'老年人膝蓋痛就要多休息、少運動！運動只會讓膝蓋磨損更嚴重，傷上加傷！',
+  real:false, why:'錯誤！適當的低衝擊運動（如游泳、水中行走）反而有助於膝關節健康，過度靜養會讓肌肉萎縮更嚴重。',
+  tip:'💡 膝蓋痛請就醫確診原因，再依醫師建議進行適當復健和運動，不要自行完全停止活動。' },
+{ diff:2, sender:'健康群組', av:'🌱', time:'下午 04:45', cat:'健康謠言', catCls:'cat-health',
+  msg:'運動後立刻喝冰水會心臟病發！冷熱溫差太大，心臟承受不了，已有案例！',
+  real:false, why:'雖然運動後心臟仍在高速跳動，喝冷水可能有輕微不適感，但「立刻心臟病發」的說法嚴重誇大，沒有充分證據。',
+  tip:'💡 運動後補充水分很重要，可以先喝常溫水，讓身體逐步冷卻再轉換飲料。' },
+{ diff:2, sender:'轉傳', av:'📩', time:'上午 08:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'牛奶是最佳補鈣食物！想要骨骼強壯，每天一定要喝兩杯牛奶，其他食物補鈣效果都比不上！',
+  real:false, why:'牛奶確實含有豐富鈣質，但豆腐、芝麻、小魚乾、深綠色蔬菜也是優良鈣質來源，並非牛奶獨一無二。',
+  tip:'💡 乳糖不耐受者可從豆製品、小魚乾等其他食物補鈣，鈣片補充也是選項，可諮詢營養師。' },
+{ diff:2, sender:'朋友轉傳', av:'👤', time:'下午 06:30', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'金融監督管理委員會緊急通知：您的投資帳戶疑似被不明人士存入非法資金，請配合調查。',
+  real:false, why:'假冒金融監督機關的詐騙！金管會不會透過LINE訊息聯繫民眾，且「非法資金存入」是套出帳號的詐騙話術。',
+  tip:'💡 收到金融機關通知，請撥金管會1902服務電話核實，不要提供任何帳號資訊。' },
+{ diff:2, sender:'衛福部', av:'🏛️', time:'上午 10:00', cat:'政府公告', catCls:'cat-govt',
+  msg:'衛生福利部：家庭暴力、性侵害、兒少保護相關求助，請撥24小時保護專線113。',
+  real:true, why:'113是衛福部正式的保護專線，24小時都有社工人員接聽，提供家暴、性侵、兒少保護等緊急協助。',
+  tip:'💡 遇到家庭暴力或危機狀況，請撥113，或撥110報警，不要忍氣吞聲。' },
+{ diff:2, sender:'好友', av:'👩‍🦱', time:'上午 11:45', cat:'健康謠言', catCls:'cat-health',
+  msg:'服藥後不能喝牛奶！牛奶會影響所有藥物的吸收，讓藥效大打折扣甚至完全無效！',
+  real:false, why:'只有特定藥物（如某些抗生素、甲狀腺藥物）需要避免與牛奶同服，並非所有藥物都有此限制。',
+  tip:'💡 服藥應遵從醫師或藥師指示，不確定是否能與牛奶同服，請詢問藥師。' },
+{ diff:2, sender:'群組轉傳', av:'📱', time:'下午 03:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'吃飯時喝水會稀釋胃酸，讓消化酵素濃度下降，長期下來消化功能越來越差！',
+  real:false, why:'謠言！人體胃酸的分泌是動態的，少量的水不會顯著影響消化。飯中喝水對多數人完全沒有問題。',
+  tip:'💡 用餐時適量飲水是正常的生活習慣，只有特殊消化疾病患者才需要特別注意。' },
+{ diff:2, sender:'衛生局', av:'🏥', time:'上午 09:00', cat:'政府公告', catCls:'cat-govt',
+  msg:'疾管署提醒：每年10月至次年3月為流感高峰期，建議高風險族群（老年人、慢性病患）優先接種流感疫苗。',
+  real:true, why:'這是疾管署的正確公衛建議！每年接種流感疫苗是預防流感及其併發症的最有效方式。',
+  tip:'💡 流感疫苗每年都要重新接種，因為流行病毒株每年不同。可至合約院所預約接種。' },
+{ diff:2, sender:'親戚', av:'👩‍🦳', time:'下午 07:15', cat:'健康謠言', catCls:'cat-health',
+  msg:'眼藥水可以讓眼睛更白更亮！每天滴幾滴，眼睛自然清澈，連眼鏡都不用戴了！',
+  real:false, why:'謠言！普通眼藥水無法改善視力或讓眼睛結構性「變白」。某些含去紅成分的眼藥水長期使用反而有副作用。',
+  tip:'💡 眼藥水要在醫師或藥師指導下使用，不能自行長期大量使用，近視要諮詢眼科醫師。' },
+{ diff:2, sender:'健康群組', av:'🌿', time:'上午 08:15', cat:'健康謠言', catCls:'cat-health',
+  msg:'維生素C可以預防感冒！只要每天大量補充維C，感冒就不會找上門，感冒了吃更多就能快快好！',
+  real:false, why:'現有研究顯示維生素C可能略微縮短感冒病程，但無法「預防感冒」，更無法替代治療。過量補充也可能有副作用。',
+  tip:'💡 預防感冒最有效的是洗手和接種疫苗，維C從天然食物（橘子、芭樂）攝取比保健食品更好。' },
+{ diff:2, sender:'轉傳訊息', av:'📩', time:'下午 08:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'坐直背挺胸是最健康的坐姿！長輩說要「抬頭挺胸」，讓脊椎保持筆直，才不會駝背！',
+  real:false, why:'醫學研究顯示，保持固定姿勢（包括完全挺直）比姿勢本身更傷脊椎。最好每30-60分鐘起身活動。',
+  tip:'💡 久坐傷身，與其保持完美坐姿，不如養成定時起身伸展的習慣，這對脊椎更有益。' },
+{ diff:2, sender:'媽媽', av:'👩‍🦳', time:'上午 07:15', cat:'健康謠言', catCls:'cat-health',
+  msg:'每天睡前喝一杯熱牛奶可以幫助入睡！牛奶含有色胺酸，是天然的安眠藥，效果非常顯著！',
+  real:false, why:'牛奶確實含有少量色胺酸，但其促進睡眠的效果極為有限。安慰劑效應可能比實際成分作用更大。',
+  tip:'💡 改善睡眠的有效方法包括：固定睡眠時間、睡前降低光線刺激、避免咖啡因。若嚴重失眠請就醫。' },
+{ diff:2, sender:'好友', av:'👦', time:'下午 02:45', cat:'健康謠言', catCls:'cat-health',
+  msg:'海帶有強大的排毒功效！每天吃海帶可以吸附並排出體內重金屬和毒素，保持血液清潔！',
+  real:false, why:'謠言！海帶本身並無特殊「排毒」功效。人體有肝臟和腎臟負責過濾有毒物質，不需要靠海帶排毒。',
+  tip:'💡「排毒食物」大多是行銷話術，維持均衡飲食和充足水分才是關鍵。' },
+
+/* ── DIFFICULTY 3：困難（33題）── */
+{ diff:3, sender:'疾管署公告', av:'🦠', time:'上午 09:00', cat:'政府公告', catCls:'cat-govt',
+  msg:'疾管署：新型流感H5N1出現人傳人案例，國內進入第二級流行警戒，建議民眾外出配戴口罩、勤洗手。',
+  real:false, why:'此為模擬訊息。疾管署會在官方網站和新聞稿發布警戒消息，請從官方管道確認，不要靠LINE轉傳獲取疫情資訊。',
+  tip:'💡 疫情相關訊息請查疾管署官網（cdc.gov.tw）或撥1922，避免轉傳未經確認的健康警報。' },
+{ diff:3, sender:'衛福部提醒', av:'🏛️', time:'上午 11:00', cat:'政府公告', catCls:'cat-govt',
+  msg:'衛福部提醒：有民眾反映市售「○○品牌膠原蛋白」含有未申報成分，請暫停使用並聯繫廠商退換。',
+  real:false, why:'真實的食藥署產品下架公告會有明確廠商名稱、批號，且同步發布於官網。「○○品牌」等模糊說法難以查驗，是謠言特徵。',
+  tip:'💡 食藥署產品下架公告可在官網「最新消息」查詢，遇保健食品安全問題，請撥食藥署1919。' },
+{ diff:3, sender:'健保署', av:'💊', time:'下午 02:00', cat:'政府公告', catCls:'cat-govt',
+  msg:'健保署公告：即日起符合條件的低收入長者可申請「長照居家服務費用補助」，每月最高5,000元，請致電長照服務專線1966。',
+  real:true, why:'1966是衛福部長照服務的正式專線，長照補助確實存在且有明確申請管道，此訊息內容可信度高。',
+  tip:'💡 長照相關補助可撥1966「長照專線」了解，或請社工協助評估申請資格。' },
+{ diff:3, sender:'朋友轉傳', av:'👤', time:'下午 03:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'最新研究：低鈉鹽完全安全，而且比一般食鹽更健康！腎臟病和心臟病患者也可以放心大量使用！',
+  real:false, why:'危險錯誤！低鈉鹽以氯化鉀取代部分氯化鈉，腎功能不佳的患者攝取過多鉀離子可能有嚴重風險，必須由醫師評估。',
+  tip:'💡 低鈉鹽適合一般人，但腎臟病、心臟衰竭患者使用前務必諮詢醫師，不可自行大量使用。' },
+{ diff:3, sender:'醫學資訊轉傳', av:'🔬', time:'上午 10:15', cat:'健康謠言', catCls:'cat-health',
+  msg:'哈佛大學醫學院最新研究發現：每天喝一杯薑黃奶可以降低阿茲海默症風險達40%！這是突破性發現！',
+  real:false, why:'謠言！查不到此哈佛研究。薑黃素雖有研究探討其對大腦的影響，但「降低40%風險」的說法過於誇大，且缺乏可查核的原始出處。',
+  tip:'💡 引用「知名大學研究」的健康訊息，請搜尋原始研究論文，無法找到出處的都要謹慎。' },
+{ diff:3, sender:'健康資訊', av:'🌿', time:'下午 04:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'防曬係數SPF50比SPF25強一倍的保護！SPF越高代表能阻擋的紫外線比例越多，要買最高SPF才有效！',
+  real:false, why:'誤解！SPF25擋掉約96%的UVB；SPF50擋掉約98%，差距很小。SPF越高增加的保護有限，關鍵是足量塗抹和定時補擦。',
+  tip:'💡 防曬重點在於適量塗抹並每2小時補擦，而非追求最高SPF數字。' },
+{ diff:3, sender:'藥品資訊', av:'💊', time:'上午 09:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'感冒時要盡早吃抗生素！越早用抗生素越能快速殺死病菌，縮短病程，讓身體快點好！',
+  real:false, why:'錯誤！普通感冒是由病毒引起，抗生素對病毒無效。濫用抗生素反而會產生抗藥性，是全球公衛危機。',
+  tip:'💡 感冒90%以上是病毒性，不需要抗生素。只有細菌感染（經醫師確診）才需要使用，且要依醫囑完整療程服用。' },
+{ diff:3, sender:'轉傳健康知識', av:'📰', time:'下午 06:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'研究指出：飯後立刻散步30分鐘助消化，是最健康的飯後習慣，對控制血糖特別有幫助！',
+  real:true, why:'有研究支持！多項研究顯示飯後輕度步行（10-30分鐘）確實有助於血糖控制和消化，是有科學依據的好習慣。',
+  tip:'💡 飯後散步以輕鬆緩步為主，激烈運動反而影響消化。糖尿病患者在醫師指導下執行效果更好。' },
+{ diff:3, sender:'醫療資訊', av:'🏥', time:'上午 11:15', cat:'健康謠言', catCls:'cat-health',
+  msg:'高壓氧治療可以改善老年失智症！研究顯示高壓氧能讓大腦細胞重生，效果比任何藥物都好！',
+  real:false, why:'誇大其詞。高壓氧治療對某些特定狀況有效，但對阿茲海默症的療效仍在研究中，「比任何藥物都好」缺乏證據。',
+  tip:'💡 失智症治療請諮詢神經科或精神科醫師，任何聲稱有奇效的療法都要謹慎查核。' },
+{ diff:3, sender:'群組轉傳', av:'📱', time:'下午 01:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'生理食鹽水是最好的傷口清洗液！只要有生理食鹽水，輕微傷口完全可以自己處理，不需要去醫院！',
+  real:false, why:'部分正確但有誤導！生理食鹽水確實可用於沖洗表淺傷口，但「完全不需要去醫院」過於絕對。深傷口、感染傷口必須就醫。',
+  tip:'💡 傷口判斷原則：有深度、出血不止、疑似感染（紅腫熱痛）、被動物咬傷，都要就醫。' },
+{ diff:3, sender:'健康資訊', av:'🌱', time:'上午 08:45', cat:'健康謠言', catCls:'cat-health',
+  msg:'天然食品添加物比合成添加物更安全！所有「天然」的東西都比人工合成的健康，這是公認的事實！',
+  real:false, why:'錯誤！「天然」不等於安全，天然毒素（如黃麴毒素、砷）對人體傷害極大。添加物的安全性應看科學評估，而非天然與否。',
+  tip:'💡 食品安全靠的是科學評估和劑量管控，不是天然VS人工的二元對立，查食藥署公告最可靠。' },
+{ diff:3, sender:'好友轉傳', av:'👩‍🦱', time:'下午 05:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'植物油比動物油更健康！所有植物油都是好油，豬油、牛油等動物性脂肪全部都是壞油，一定要避免！',
+  real:false, why:'過度簡化！部分氫化植物油（反式脂肪）比動物油更危害健康。重點是用油種類、量和加熱溫度，不是動物vs植物。',
+  tip:'💡 健康用油原則：選擇初榨橄欖油、酪梨油等；高溫烹飪用發煙點高的油；避免反式脂肪。' },
+{ diff:3, sender:'朋友', av:'👩', time:'上午 10:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'抗氧化食物可以預防癌症！多吃藍莓、綠茶、石榴等高抗氧化食物，能有效消滅自由基阻止癌細胞形成！',
+  real:false, why:'誇大其詞。抗氧化食物對整體健康有益，但「有效預防癌症」的說法過於絕對，癌症成因複雜，無法靠單一食物預防。',
+  tip:'💡 均衡飲食（多蔬果少加工食品）確實降低某些癌症風險，但不是「多吃某種食物就能防癌」。' },
+{ diff:3, sender:'衛生局轉傳', av:'🏥', time:'下午 03:30', cat:'政府公告', catCls:'cat-govt',
+  msg:'台北市衛生局公告：55歲以上市民可申請免費牙齒塗氟服務，需攜帶健保卡至指定診所預約。',
+  real:false, why:'此訊息難以核實。各地衛生局確實有不同補助方案，但具體內容需查詢當地衛生局官網確認，不宜僅憑LINE訊息行動。',
+  tip:'💡 各地政府補助方案請至各縣市衛生局官網查詢，或撥打衛生局服務電話確認。' },
+{ diff:3, sender:'健康資訊', av:'🌿', time:'下午 07:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'喝水的時間影響血糖！飯前30分鐘喝水可以降低血糖，但飯後立刻喝水會讓血糖飆高！',
+  real:false, why:'無充分科學根據。少量飲水不會顯著影響血糖。血糖管理應著重飲食內容、份量、運動和用藥，而非喝水時間。',
+  tip:'💡 糖尿病或高血糖患者應接受糖尿病衛教，從飲食、運動、用藥全面管理，不要迷信特定飲食時機。' },
+{ diff:3, sender:'藥師轉傳', av:'💊', time:'上午 09:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'頭痛時最好越早吃止痛藥越好！不要撐著，早吃早好，以免疼痛加劇後更難控制！',
+  real:false, why:'有風險！慢性頭痛患者若過度使用止痛藥，可能導致「藥物過度使用頭痛」（反彈性頭痛），反而讓頭痛更頻繁。',
+  tip:'💡 頻繁頭痛應就醫找原因，止痛藥每個月使用不應超過10天，以避免反彈性頭痛。' },
+{ diff:3, sender:'轉傳資訊', av:'📩', time:'下午 04:15', cat:'健康謠言', catCls:'cat-health',
+  msg:'研究證明：每天吃魚油可以有效降低三酸甘油脂！心血管疾病患者服用魚油比吃藥更安全！',
+  real:false, why:'部分正確但有誤導！高劑量omega-3確實可降低三酸甘油脂，但「比吃藥更安全」的說法危險，不能自行停藥改吃魚油。',
+  tip:'💡 魚油保健食品和醫療級omega-3是不同的。有心血管疾病請遵醫囑用藥，魚油只能做輔助。' },
+{ diff:3, sender:'群組', av:'📱', time:'上午 11:30', cat:'假新聞', catCls:'cat-fake',
+  msg:'某知名大廠食品被驗出含螢光增白劑！衛生單位已知情但因廠商施壓而隱瞞，請大家馬上停止購買！',
+  real:false, why:'典型的「政府隱瞞說」假新聞！食藥署查驗結果都會公告，若有真實問題不可能全面隱瞞。此訊息缺乏具體廠商和查核依據。',
+  tip:'💡「政府隱瞞」類訊息是假新聞常見套路。食品安全問題請查食藥署「食品追溯追蹤系統」或撥1919。' },
+{ diff:3, sender:'法律諮詢', av:'⚖️', time:'下午 02:30', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'您好，本人是蔡○○律師，您的案件已進入訴訟程序。如需了解詳情或協商，請與本事務所聯繫：02-XXXX-XXXX。',
+  real:false, why:'假冒律師詐騙！若收到莫名律師通知，請掛斷後透過台灣律師公會查詢確認，不要主動回撥。',
+  tip:'💡 收到不明律師或法院通知，可致電各地方法院或台灣律師公會（02-2351-5071）查詢案件真實性。' },
+{ diff:3, sender:'保險公司', av:'🏢', time:'上午 10:45', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'您投保的壽險將於下週到期，如不立刻線上續約，保單自動失效。請點此確認：policy-renew-tw.com',
+  real:false, why:'假冒保險公司的詐騙！保險公司的正式續約通知會郵寄書面文件，不會透過LINE要你點陌生連結。',
+  tip:'💡 收到保險相關通知，直接撥打保險公司官方客服電話確認，不要點訊息中的連結。' },
+{ diff:3, sender:'醫院通知', av:'🏥', time:'下午 05:30', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'您在本院的健康檢查報告顯示異常指數，請掃描以下QR碼下載報告並安排複診：med-report-tw.net',
+  real:false, why:'假冒醫院的釣魚詐騙！醫院不會透過LINE傳送帶有陌生連結的檢查報告通知，應直接聯繫該醫院確認。',
+  tip:'💡 疑似醫院通知，直接撥打醫院主線電話確認，不要點訊息內的連結或掃描QR碼。' },
+{ diff:3, sender:'金融機構', av:'🏦', time:'上午 08:30', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'親愛的客戶，您申請的數位存款帳戶已開通，為了保障您的資金安全，請至此網站進行雙重驗證：secure-bank-verify.tw',
+  real:false, why:'假冒金融機構的釣魚攻擊。真正的銀行雙重驗證流程都在官方App或網站進行，不會透過LINE傳送陌生連結。',
+  tip:'💡 任何要求登入或驗證帳號的連結，都要確認是官方網址（通常以.com.tw結尾），有疑問請撥銀行客服。' },
+{ diff:3, sender:'健康轉傳', av:'🌱', time:'下午 01:45', cat:'健康謠言', catCls:'cat-health',
+  msg:'腸道是「第二大腦」！只要每天按時排便、補充益生菌，腸道健康好，情緒和記憶力都會大幅改善！',
+  real:false, why:'部分有科學基礎但過度誇大。腸腦連結確實存在，但「大幅改善情緒記憶」的說法超過現有研究程度。',
+  tip:'💡 腸道健康對整體健康確實重要，維持均衡飲食、攝取足夠纖維是基本，但不是萬靈丹。' },
+{ diff:3, sender:'網路轉傳', av:'📰', time:'上午 07:45', cat:'假新聞', catCls:'cat-fake',
+  msg:'根據某醫療機構統計，台灣每年有超過50萬人因自來水中的氯氣殘留而罹患膀胱癌！請改喝過濾水！',
+  real:false, why:'誇大的數據！台灣自來水中氯氣含量符合國際標準，而且氯氣與膀胱癌的關聯尚在研究中，「50萬人」的數字可疑且無出處。',
+  tip:'💡 疑似引用統計數據的健康訊息，請查原始研究出處。台灣癌症數據可查國健署癌症登記年報。' },
+{ diff:3, sender:'政府通知', av:'🏛️', time:'下午 06:15', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'行政院消費者保護委員會通知：您的網路消費糾紛已受理。請於3日內提供購物憑證，否則視同放棄索賠權利。',
+  real:false, why:'假冒政府機關的詐騙。行政院消費者保護委員會不會透過LINE發送此類通知，消費糾紛可撥打消保專線1950。',
+  tip:'💡 消費糾紛請撥消費者保護專線1950，或向各地消費者服務中心申訴，不要回應LINE上的政府通知。' },
+{ diff:3, sender:'生命線協會', av:'📞', time:'上午 10:00', cat:'政府公告', catCls:'cat-govt',
+  msg:'生命線協會提醒：若您或身邊的人有輕生念頭，請立刻撥打1925安心專線（24小時），專業人員全天候接聽。',
+  real:true, why:'1925是衛福部正式的安心專線，24小時有專業人員接聽，提供心理危機諮詢服務，此訊息為真實公益資訊。',
+  tip:'💡 1925是記得住的「依舊愛我」，遇到心理危機或情緒困擾時，請勇敢求助。' },
+{ diff:3, sender:'消防署', av:'🚒', time:'上午 09:45', cat:'政府公告', catCls:'cat-govt',
+  msg:'消防署防災提醒：家中用電設備老舊（超過10年）應定期檢查更換，避免電線走火。請聯繫台電進行安全評估。',
+  real:true, why:'這是消防署確實推廣的正確防火知識，老舊電線是台灣住宅火災的主要原因之一，定期檢查是必要的。',
+  tip:'💡 老舊電線檢查可聯繫台電1911，或洽合格電器行進行室內配線安全評估。' },
+{ diff:3, sender:'轉傳資訊', av:'📩', time:'下午 03:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'碘鹽可以防輻射！發生核電廠事故時，只要大量攝取碘鹽，就能保護甲狀腺不受輻射傷害！',
+  real:false, why:'危險謠言！碘鹽中的碘含量極低，無法達到防輻射所需劑量。真正的防輻射碘劑是「碘化鉀」藥片，必須由政府統一發放。',
+  tip:'💡 核災時的碘劑防護必須依政府指示行動，自行大量攝取碘鹽可能造成甲狀腺問題，後果嚴重。' },
+{ diff:3, sender:'健康養生', av:'🌿', time:'下午 09:15', cat:'健康謠言', catCls:'cat-health',
+  msg:'喝自製蔬果汁排毒！每天早晨空腹喝新鮮蔬果汁，可以清除腸道毒素，3天就能感受到顯著排毒效果！',
+  real:false, why:'謠言！「排毒」是不嚴謹的說法，人體有完整的排毒系統（肝、腎、淋巴）。蔬果汁有營養，但「3天排毒」缺乏科學依據。',
+  tip:'💡 蔬果汁是健康飲食的一部分，但不能取代正餐。空腹大量喝高糖份果汁反而可能造成血糖波動。' },
+{ diff:3, sender:'法院通知', av:'⚖️', time:'上午 09:15', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'台灣台北地方法院：您的銀行帳戶因涉嫌詐欺案件已列為凍結名單。請備妥身分證及印章，於3日內至本院報到說明。',
+  real:false, why:'假冒法院的詐騙！真實的法院傳票會以郵寄方式送達，不會透過LINE發送。收到可疑法院通知請撥各地方法院總機確認。',
+  tip:'💡 台灣各地方法院電話可在司法院官網查詢（judiciary.gov.tw），收到莫名法院通知請親自致電確認。' },
+{ diff:3, sender:'衛生局', av:'🏥', time:'下午 04:30', cat:'政府公告', catCls:'cat-govt',
+  msg:'國民健康署提醒：18歲以上成人每年可至合約院所免費量血壓、血糖，請攜帶健保卡，落實自我健康管理。',
+  real:true, why:'這是國健署的真實公衛資訊！成人預防保健服務確實包含血壓血糖量測，是台灣健保提供的免費預防醫療。',
+  tip:'💡 成人預防保健服務依年齡有不同頻率，可至健保署官網或各衛生所查詢適合自己的篩檢時程。' },
+
+/* ── 補充至100題 ── */
+{ diff:2, sender:'轉傳訊息', av:'📩', time:'下午 02:15', cat:'健康謠言', catCls:'cat-health',
+  msg:'吃飯後立刻吃水果最助消化！水果的酵素在飯後進入胃部，可以分解剛吃的食物，讓吸收更完全！',
+  real:false, why:'謠言！食物在胃部的消化時間、順序和水果酵素的說法均缺乏科學依據。水果在任何時間食用都能提供良好營養。',
+  tip:'💡 水果最重要的是要吃，什麼時候吃其次。腸胃不好者可以飯後稍等30分鐘再吃，避免脹氣。' },
+{ diff:2, sender:'健康群組', av:'🌱', time:'上午 10:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'每天喝一大杯薑汁可以排寒氣！寒氣是百病之源，薑汁能從根本改善體質，連慢性病都會好！',
+  real:false, why:'薑確實有助於促進血液循環和暖胃，但「排寒氣治百病」嚴重誇大，「寒氣是百病之源」是中醫的說法，並非現代醫學概念。',
+  tip:'💡 薑茶喝了身體暖，但不能取代醫療。慢性病的治療請遵醫囑，不能靠食物根治。' },
+{ diff:2, sender:'朋友', av:'👩‍🦱', time:'下午 04:00', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'您好，本公司是政府認可的投資公司，我們的基金年報酬率穩定在20%以上，名額有限，請儘速加入！',
+  real:false, why:'投資詐騙！任何保證高報酬的投資都要高度懷疑。年報酬率20%以上幾乎不可能穩定實現，這是詐騙常見話術。',
+  tip:'💡 任何「保證獲利」的投資都是騙局！投資必有風險，可到金管會查核公司是否合法登記。' },
+{ diff:2, sender:'消防署', av:'🚒', time:'上午 09:00', cat:'政府公告', catCls:'cat-govt',
+  msg:'消防署提醒：颱風期間請關閉瓦斯總開關、拔掉不必要的電器插頭，並遠離窗戶，避免玻璃碎裂傷害。',
+  real:true, why:'這是消防署的真實防災建議！颱風期間關閉瓦斯和電器是重要的防災措施，能有效降低火災和觸電風險。',
+  tip:'💡 颱風來臨前還要準備緊急物資（飲用水、食物、手電筒、急救包），並確認家中老人孩子的安全。' },
+{ diff:3, sender:'轉傳資訊', av:'📰', time:'上午 11:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'葡萄糖胺可以修復軟骨！長期服用葡萄糖胺可以讓退化的膝蓋軟骨重新生長，根本解決關節炎！',
+  real:false, why:'誇大其詞！葡萄糖胺對某些患者的關節疼痛有輕微幫助，但「修復軟骨」和「根本解決關節炎」的說法超過科學實證。',
+  tip:'💡 退化性關節炎的治療請諮詢骨科醫師，葡萄糖胺可輔助使用，但不是萬能解藥，療效因人而異。' },
+{ diff:3, sender:'藥品資訊', av:'💊', time:'下午 03:45', cat:'健康謠言', catCls:'cat-health',
+  msg:'長期服用阿斯匹靈可以預防所有心臟病！每天一顆阿斯匹靈，心肌梗塞和中風就不會找上門！',
+  real:false, why:'有風險的說法！低劑量阿斯匹靈確實用於高風險者的二級預防，但一般人長期服用可能增加腸胃出血風險，必須由醫師評估。',
+  tip:'💡 阿斯匹靈是否適合自己服用，必須由心臟科醫師評估個人風險。不要自行長期服用任何藥物。' },
+
+/* ── 高知識退休人士進階健康題 ── */
+{ diff:3, sender:'健康新知', av:'🔬', time:'上午 09:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'最新大型研究證實：每天服用低劑量阿斯匹靈可預防心臟病，醫界建議50歲以上健康成人應常規服用！',
+  real:false, why:'2022年美國預防服務工作組已更新指引：不建議60歲以上或無心臟病史者常規服用低劑量阿斯匹靈，因出血風險可能大於獲益。此問題過去是「是」，現在已翻轉。',
+  tip:'💡 過去被視為預防常識的阿斯匹靈，在新研究下結論已反轉。醫學建議會更新，不能只靠舊知識。' },
+{ diff:3, sender:'養生資訊', av:'🌿', time:'下午 02:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'喝紅酒對心臟有益！「法國悖論」顯示法國人吃高脂飲食但心血管疾病少，關鍵就是每天喝紅酒中的白藜蘆醇。',
+  real:false, why:'「法國悖論」已被科學界大幅質疑。飲食統計誤差、法國人實際上心臟病並非特別少、白藜蘆醇吸收率極低等，都使此說法缺乏依據。WHO已明確表示沒有安全飲酒量。',
+  tip:'💡 「少量飲酒有益」是長期流傳的觀念，但近年大型研究顯示此結論有嚴重方法論問題。' },
+{ diff:3, sender:'醫療資訊', av:'💊', time:'上午 10:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'鈣片補充可以預防骨質疏鬆、強化骨骼，中老年人應每天補充鈣片保護骨骼健康！',
+  real:false, why:'近年研究發現，補充鈣片（而非食物中的天然鈣）可能增加心臟病和腎結石風險。美國預防醫學工作組不建議停經後婦女常規補充鈣片，飲食攝取優先於補充劑。',
+  tip:'💡 補充劑和食物中的同種營養素，在人體的作用可能截然不同。補鈣最好從牛奶、豆腐等食物中攝取。' },
+{ diff:3, sender:'健康群組', av:'🏃', time:'下午 04:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'「久坐是新型吸菸！」研究顯示，即使有規律運動習慣，長時間坐著工作仍和抽菸一樣危險！',
+  real:false, why:'雖然久坐確實有健康風險，但「等同抽菸」的說法嚴重誇大。研究顯示規律運動可大幅抵消久坐風險，而且吸菸有害程度遠超過久坐。兩者不應等同比較。',
+  tip:'💡 聳動比較（「X等同Y」）是媒體常用手法，往往誇大了相關性。需查看原始研究的風險量級。' },
+{ diff:3, sender:'保健資訊', av:'🦠', time:'上午 08:45', cat:'健康謠言', catCls:'cat-health',
+  msg:'益生菌補充劑能有效改善腸道菌叢，幫助消化、提升免疫力，對各種疾病都有廣泛幫助！',
+  real:false, why:'益生菌的臨床效果高度依賴菌株種類、劑量和個人腸道狀況，目前大多數市售益生菌補充劑的實驗室效果無法確保到達腸道，對健康成人的廣泛效益尚未得到充分科學支持。',
+  tip:'💡 益生菌對特定腸道疾病（如抗生素後腹瀉）有一定效果，但「百病通治」的說法缺乏依據。' },
+{ diff:3, sender:'轉傳健康文', av:'📖', time:'下午 01:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'維他命C大量補充可以預防感冒！每天服用1000mg維他命C，感冒發生率可降低一半，生病了也能快速痊癒！',
+  real:false, why:'大型系統回顧顯示，對一般大眾而言，補充大量維他命C並不能預防感冒，只對極度體力活動者（如馬拉松跑者）略有效果。生病期間服用可縮短約8-14%病程，效果有限。',
+  tip:'💡 維他命C的神話從Linus Pauling的主張開始，但後續研究並未支持。適量攝取即可，過量無益。' },
+{ diff:3, sender:'健康資訊站', av:'🌡️', time:'上午 11:15', cat:'健康謠言', catCls:'cat-health',
+  msg:'喝咖啡傷身！咖啡因會增加血壓、傷害腎臟、導致骨質流失，50歲以後應完全戒掉咖啡。',
+  real:false, why:'大量研究顯示，適度飲用咖啡（每天2-4杯）與多種疾病風險降低有關，包括2型糖尿病、帕金森症、肝癌等。適量咖啡對大多數人是安全的，甚至有益的。',
+  tip:'💡 咖啡研究在過去20年有大幅翻轉，現在的共識是適量飲用對多數人有益。腎臟病或高血壓患者應諮詢醫師。' },
+{ diff:3, sender:'醫藥新知', av:'💉', time:'下午 03:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'膠原蛋白補充劑可以讓皮膚恢復彈性、減少皺紋！直接口服膠原蛋白，可以補充皮膚流失的膠原。',
+  real:false, why:'口服膠原蛋白在消化過程中會被分解為一般胺基酸，並不會直接補充到皮膚。部分研究顯示特定胜肽可能有輕微效果，但遠不如廣告宣傳的效果，且機制仍有爭議。',
+  tip:'💡 口服補充劑無法「直接到達」特定器官，必須經過消化分解。護膚最有效的方式仍是防曬和充足睡眠。' },
+{ diff:3, sender:'轉傳文章', av:'📰', time:'上午 09:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'間歇性斷食（168）能快速燃脂減重，同時延長壽命！多項動物實驗和人體研究都證實對健康有全面好處！',
+  real:false, why:'間歇性斷食對某些人確實有助減重，但效果主要來自熱量限制，與傳統節食相比並無明顯優勢。動物實驗延壽效果在人類身上尚未複製，長期效果和安全性仍需更多研究。',
+  tip:'💡 動物實驗結果常常無法直接套用到人類。減重方法需因人制宜，重要的是能長期維持的飲食模式。' },
+{ diff:3, sender:'健康知識', av:'🧬', time:'下午 05:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'人工甜味劑（代糖）比真糖更健康，糖尿病患者和減重者可以安心大量使用零卡飲料代替有糖飲料。',
+  real:false, why:'WHO於2023年將阿斯巴甜列為「可能致癌物」（2B類）。此外，多項研究顯示代糖可能影響腸道菌叢、不利於減重習慣的建立。長期大量使用的安全性仍有疑慮。',
+  tip:'💡 「零卡」不等於「無害」，代糖研究持續更新中。最佳策略是減少所有形式的甜食，而非只是換成代糖。' },
+{ diff:3, sender:'醫學新知', av:'🏥', time:'上午 10:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'研究發現：睡眠充足可以預防阿茲海默症！大腦在深度睡眠時會清除β-澱粉樣蛋白，這是目前已知最有效的預防方法。',
+  real:true, why:'這是真實的科學發現！大腦淋巴系統（glymphatic system）確實在睡眠時清除包括β-澱粉樣蛋白在內的代謝廢物。充足睡眠是目前認為可降低阿茲海默症風險的重要生活因素之一。',
+  tip:'💡 充足睡眠（7-9小時）是目前有科學依據的大腦保健方法，這一點得到多項研究支持。' },
+{ diff:3, sender:'保健資訊', av:'🌰', time:'下午 02:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'Omega-3魚油補充劑可以顯著降低心臟病風險、預防中風，是中老年人必備的保健品！',
+  real:false, why:'近年多項大型隨機對照試驗（REDUCE-IT除外）顯示，一般劑量魚油補充劑對心血管保護效果有限，甚至有研究顯示可能增加心房顫動風險。從深海魚攝取比補充劑更有效。',
+  tip:'💡 觀察性研究（吃魚的人較健康）和補充劑實驗（直接服用魚油）的結論可能截然不同。食物優先於補充劑。' },
+{ diff:3, sender:'養生達人', av:'🥗', time:'上午 07:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'氫水、鹼性水可以中和體內酸性環境，改善酸性體質！長期飲用可以預防癌症和慢性病！',
+  real:false, why:'人體有精密的酸鹼調節系統，血液pH值約7.4，食物和水無法改變血液酸鹼度。「酸性體質」是偽科學概念，氫水和鹼性水無法改變體內環境，更無法預防癌症。',
+  tip:'💡「酸性體質」是商業行銷概念，在正規醫學中不存在。如果喝水就能改變血液pH，那才是真正的危症。' },
+{ diff:3, sender:'醫療資訊', av:'🔬', time:'下午 04:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'輔酶Q10（CoQ10）補充劑可以增強心臟功能、改善服用史他汀類藥物引起的肌肉疼痛！這是心臟科醫師推薦的輔助療法。',
+  real:false, why:'雖然理論上史他汀可能降低CoQ10，但臨床試驗並未一致顯示補充CoQ10能改善肌肉症狀。部分心衰竭患者可能有益，但對健康成人的廣泛效果缺乏高品質證據。',
+  tip:'💡 服用史他汀出現肌肉不適，最重要的是告知醫師，而非自行補充CoQ10。停藥或換藥才是正確做法。' },
+{ diff:3, sender:'健康新知', av:'🌙', time:'晚上 09:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'褪黑激素（melatonin）是天然荷爾蒙，長期服用可以改善睡眠品質，對老年人的睡眠障礙特別有效且完全安全！',
+  real:false, why:'褪黑激素對時差或作息調整有幫助，但對慢性失眠效果有限，且長期服用的安全性尚未充分研究。台灣褪黑激素屬於藥品，需醫師處方；「完全安全」的說法過於武斷。',
+  tip:'💡 褪黑激素在歐美是保健品，在台灣是處方藥，這個差異反映了不同的監管判斷。失眠問題最好尋求醫師協助。' },
+{ diff:3, sender:'防癌資訊', av:'🎗️', time:'上午 10:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'WHO已正式確認：紅肉和加工肉品（香腸、培根）是致癌物，長期食用會導致大腸癌！請立即戒除！',
+  real:true, why:'這是事實！WHO旗下的國際癌症研究機構（IARC）確實將加工肉品列為第一類致癌物、紅肉列為第2A類（可能致癌）。每天吃50克加工肉品，大腸癌風險增加約18%。',
+  tip:'💡 WHO的致癌物分類是依據「證據強度」而非「危害程度」。香菸也是第一類，但吸菸危害遠大於偶爾吃一片培根。' },
+{ diff:3, sender:'健康投資', av:'💰', time:'下午 01:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'NMN（菸鹼醯胺單核苷酸）是最新長壽科技！哈佛醫學院研究證明，每天補充NMN可以逆轉老化、延長壽命30%！',
+  real:false, why:'NMN研究主要來自動物實驗，人體試驗規模小、時間短，沒有任何研究「證明逆轉老化或延長30%壽命」。「哈佛醫學院研究」常被斷章取義，Sinclair教授的研究結論也遠比此說法謹慎。',
+  tip:'💡 長壽補充劑廣告常援引學術研究，但往往誇大或曲解結論。查看原始論文的結論，而非媒體或商家的詮釋。' },
+{ diff:3, sender:'視力保健', av:'👁️', time:'上午 08:00', cat:'健康謠言', catCls:'cat-health',
+  msg:'防藍光眼鏡可以保護眼睛、改善睡眠品質！長時間使用3C的人應該配戴防藍光眼鏡減少眼睛傷害！',
+  real:false, why:'美國眼科學會表示，現有科學證據不支持防藍光眼鏡能減少眼睛疲勞或改善睡眠。長時間看螢幕引起的眼疲勞主要源於眨眼頻率降低，遵循20-20-20原則（每20分鐘看20英尺遠處20秒）更有效。',
+  tip:'💡 防藍光眼鏡雖然不傷害，但目前缺乏科學效益證明。減少用眼疲勞的關鍵是定期休息，而非護具。' },
+{ diff:3, sender:'疫苗資訊', av:'💉', time:'下午 03:00', cat:'政府公告', catCls:'cat-govt',
+  msg:'疾管署公告：帶狀疱疹疫苗（俗稱皮蛇疫苗）建議50歲以上成人接種，可有效預防帶狀疱疹及其後神經痛並發症。',
+  real:true, why:'這是真實的衛生政策！帶狀疱疹疫苗對50歲以上成人的保護效果約90%以上（新型重組蛋白疫苗），且可大幅降低帶狀疱疹後神經痛（PHN）的嚴重度，是疾管署和全球主要衛生機構的正式建議。',
+  tip:'💡 帶狀疱疹（皮蛇）好發於50歲以上免疫力下降者，後神經痛可長達數月甚至數年，疫苗預防效果極佳。' },
+{ diff:3, sender:'基因檢測廣告', av:'🧬', time:'下午 05:30', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'基因檢測可以預測您罹患哪些疾病！只需一管唾液，就能得知您未來30年的健康風險，提前預防所有疾病！',
+  real:false, why:'消費級基因檢測的疾病預測能力被嚴重誇大。大多數疾病由多基因+環境因素決定，基因只是風險因子之一。FDA多次警告這類服務可能帶來假安全感或不必要的焦慮，且無法「預測所有疾病」。',
+  tip:'💡 基因檢測對某些單基因遺傳病有價值（如BRCA基因），但對複雜疾病的預測能力非常有限，不要輕信商業誇大宣傳。' },
+{ diff:3, sender:'退休同事群組', av:'👴', time:'上午 07:45', cat:'健康謠言', catCls:'cat-health',
+  msg:'醫師朋友說：60歲以上每天吃一顆低劑量阿斯匹靈，可以預防心肌梗塞和中風，健康的人也應該天天吃保養！',
+  real:false, why:'過時觀念！最新國際指引已不建議「健康長者」常規服用阿斯匹靈做初級預防，因為出血風險可能高於益處。只有醫師評估過心血管風險的患者才適合。',
+  tip:'💡 曾經流行的保健觀念可能已被新研究推翻，用藥請以現任主治醫師的建議為準，不要自行長期服藥。' },
+{ diff:3, sender:'診所衛教訊息', av:'💉', time:'上午 10:30', cat:'健康資訊', catCls:'cat-health',
+  msg:'50歲以上民眾建議接種帶狀疱疹（皮蛇）疫苗，可大幅降低發病與疱疹後神經痛風險，曾長過皮蛇的人也建議接種。',
+  real:true, why:'正確資訊！帶狀疱疹疫苗確實建議50歲以上成人接種，即使得過帶狀疱疹仍可能復發，接種可有效降低風險。',
+  tip:'💡 疫苗接種建議可查疾管署官網或詢問家庭醫師，正確的預防醫學資訊值得分享給家人。' },
+{ diff:3, sender:'養生達人分享', av:'🌞', time:'下午 01:20', cat:'健康謠言', catCls:'cat-health',
+  msg:'研究證實維他命D可以預防癌症和失智！台灣人普遍缺乏，建議每天自行補充10000IU以上，吃越多保護力越強！',
+  real:false, why:'劑量錯誤且誇大！維他命D每日上限一般為4000IU，長期超量可能導致高血鈣、腎結石。「預防癌症失智」的療效也未被大型研究證實。',
+  tip:'💡 「越多越好」是保健品謠言的常見話術，脂溶性維生素（A、D、E、K）過量會累積中毒，補充前先驗血並諮詢醫師。' },
+{ diff:3, sender:'關節保健群組', av:'🦵', time:'下午 03:40', cat:'健康謠言', catCls:'cat-health',
+  msg:'骨科名醫警告：膝蓋退化的人千萬不要運動！走越多軟骨磨損越快，最好在家休息少走路，才能保護膝關節！',
+  real:false, why:'錯誤觀念！適度運動（如游泳、騎車、肌力訓練）反而能強化膝關節周圍肌肉、減緩退化。完全不動會使肌肉萎縮，膝蓋負擔更大。',
+  tip:'💡 退化性關節炎的正確處置是「適當運動+減重」，運動處方請諮詢復健科或骨科醫師。' },
+{ diff:3, sender:'投資理財社團', av:'📈', time:'晚上 08:00', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'金管會核准！全新虛擬貨幣套利平台，AI自動交易保證每月15%穩定報酬，本金隨時可領回，名額有限！',
+  real:false, why:'典型投資詐騙！金管會不會「核准保證報酬」的平台，「保證每月15%」年化超過400%，違反金融常識。「隨時可領回」是誘你加碼的話術，等你投入大額就無法出金。',
+  tip:'💡 記住鐵律：「保證獲利」＝詐騙。可到金管會網站查詢合法業者名單，或撥165反詐騙專線確認。' },
+{ diff:3, sender:'衛福部國健署', av:'🏥', time:'上午 09:15', cat:'政府公告', catCls:'cat-govt',
+  msg:'國健署提醒：45至74歲民眾每2年可做1次公費大腸癌篩檢（糞便潛血檢查），早期發現治癒率高，請多加利用。',
+  real:true, why:'正確資訊！政府提供45-74歲民眾每2年1次免費糞便潛血檢查，大腸癌早期發現存活率超過9成。',
+  tip:'💡 公費癌症篩檢資訊可查國健署官網，善用免費篩檢是最划算的健康投資。' },
+{ diff:3, sender:'家族長輩', av:'🍲', time:'晚上 07:30', cat:'健康謠言', catCls:'cat-health',
+  msg:'醫學報告：隔夜菜會產生大量亞硝酸鹽，吃隔夜菜等於慢性中毒，是台灣人大腸癌第一名的元兇！',
+  real:false, why:'過度誇大！隔夜菜冷藏保存得當，亞硝酸鹽增加量極低，遠低於安全標準。大腸癌成因複雜，「隔夜菜是元兇」沒有科學依據。',
+  tip:'💡 隔夜菜重點是「盡快冷藏、徹底加熱」。把單一食物說成致癌元兇的訊息多半是謠言。' },
+{ diff:3, sender:'LINE官方通知？', av:'📱', time:'下午 04:50', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'【LINE安全中心】您的帳號涉嫌違規使用，將於24小時內停權。請點擊連結進行身分驗證，逾期帳號將永久刪除：line-verify.tw',
+  real:false, why:'釣魚詐騙！LINE官方不會用訊息通知停權並要求點連結驗證。「line-verify.tw」是假網域，點入輸入帳密就會被盜走帳號，再被用來詐騙你的親友。',
+  tip:'💡 收到「帳號異常」訊息，不要點任何連結。直接開啟官方App查看設定，或向165查證。' },
+
+/* ── 近期長輩群組高頻謠言 ── */
+{ diff:2, sender:'里長群組轉傳', av:'🏘️', time:'上午 08:20', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'【政府普發現金】最後3天登記！點擊連結輸入身分證字號與銀行帳號，現金6000元直接匯入：gov-tw6000.com',
+  real:false, why:'詐騙！政府普發現金只透過官方網站（.gov.tw結尾）辦理，且不會用LINE通知「最後期限」催促登記。假網址騙走你的身分證與帳戶資料。',
+  tip:'💡 政府網站一定是「.gov.tw」結尾。任何要你輸入銀行帳號的「補助登記」連結，先撥165查證。' },
+{ diff:3, sender:'投資理財分享', av:'🎬', time:'晚上 09:10', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'台積電創辦人在直播中親口推薦！加入這個投資群組，他的團隊帶你操作，上個月會員平均獲利32%！附影片為證。',
+  real:false, why:'AI深偽（Deepfake）詐騙！詐團用AI合成名人影片推薦投資，影像聲音幾可亂真。知名企業家不會在網路直播帶散戶操盤，「平均獲利32%」更是詐騙話術。',
+  tip:'💡 現在「眼見不一定為憑」，名人投資影片幾乎都是AI合成詐騙。投資前查金管會核准名單，或撥165。' },
+{ diff:2, sender:'水電行老闆', av:'🔌', time:'下午 02:15', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'【台電通知】您符合夏季電費補助資格，尚有1,280元未領取，請點擊連結填寫資料申請退費，逾期視同放棄。',
+  real:false, why:'假冒台電的釣魚簡訊！台電不會用簡訊或LINE發送「退費連結」。電費相關事項都透過帳單或台電官方App通知。',
+  tip:'💡 收到「退費、補助未領」訊息，直接撥台電客服1911查證，不要點訊息裡的連結。' },
+{ diff:2, sender:'簡訊轉傳', av:'💳', time:'上午 11:40', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'【健保署】您的健保卡因異常使用將於今日停卡，請立即點擊連結驗證身分，否則就醫權益將受影響。',
+  real:false, why:'假冒健保署詐騙！健保署不會用簡訊通知「停卡」並要求點連結。健保卡狀態可撥0800-030-598或臨櫃查詢。',
+  tip:'💡 政府機關不會用「今日停卡」這種急迫字眼逼你點連結，越急的訊息越要冷靜查證。' },
+{ diff:2, sender:'家族群組', av:'📢', time:'上午 09:30', cat:'假新聞', catCls:'cat-fake',
+  msg:'LINE官方宣布：下個月開始群組要收費，每個群組每月99元！快轉發這則訊息給10個好友，帳號就能保持免費！',
+  real:false, why:'流傳超過十年的經典謠言！LINE從未宣布群組收費，「轉發給10人保持免費」是謠言自我擴散的話術，轉傳只會幫謠言傳播。',
+  tip:'💡 「轉發就能免費／中獎／解鎖」是謠言的經典特徵，官方公告請以官方網站或App內通知為準。' },
+{ diff:3, sender:'地震預言轉傳', av:'🌏', time:'晚上 10:05', cat:'假新聞', catCls:'cat-fake',
+  msg:'快轉給家人！日本研究員精準預測：本月15日凌晨台灣東部將發生規模7以上大地震，請提前準備避難包在門口！',
+  real:false, why:'謠言！以目前科學技術，任何人都無法精準預測地震的時間地點與規模。「精準預測地震」的訊息100%是謠言，只會製造恐慌。',
+  tip:'💡 地震訊息只信中央氣象署（cwa.gov.tw）。準備避難包是好習慣，但不需要因謠言恐慌。' },
+{ diff:2, sender:'購物群組', av:'🛒', time:'下午 04:25', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'好市多35週年慶！點擊連結回答3個問題，就送2,000元禮券，每人限領一次，今天最後一天！',
+  real:false, why:'假抽獎詐騙！好市多等賣場不會透過LINE連結發放禮券。這類「回答問題送禮券」會騙個資、誘導訂閱付費服務，還會慫恿你轉發害到親友。',
+  tip:'💡 週年慶抽獎活動請到官方App或官網確認，「今天最後一天」是製造緊迫感的詐騙話術。' },
+{ diff:3, sender:'退休教師群', av:'📦', time:'上午 10:50', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'【中華郵政】您的包裹因地址不完整無法投遞，請於24小時內點擊連結補填收件資料，逾期包裹將退回。',
+  real:false, why:'釣魚簡訊！郵局不會用簡訊要求點連結「補地址」。假網頁會騙信用卡資料，宣稱只收「重寄運費」，實際盜刷你的卡片。',
+  tip:'💡 沒網購就不會有包裹。有疑問撥郵局客服0800-700-365查詢，不要點簡訊連結。' },
+{ diff:3, sender:'養生廚房', av:'🍳', time:'下午 05:15', cat:'健康謠言', catCls:'cat-health',
+  msg:'醫師警告：植物油加熱會產生大量致癌物，炒菜一定要改用豬油才安全！阿嬤時代的智慧才是對的！',
+  real:false, why:'以偏概全！任何油超過發煙點都會產生有害物質，重點是「用對油、控制溫度」。豬油飽和脂肪高，大量使用反而增加心血管風險。',
+  tip:'💡 「只有某樣東西才安全」的絕對化說法多半是謠言。高溫炒炸選發煙點高的油，涼拌用初榨橄欖油即可。' },
+{ diff:2, sender:'3C達人分享', av:'📵', time:'晚上 11:20', cat:'健康謠言', catCls:'cat-health',
+  msg:'手機充電時千萬不要放床頭！充電中的手機輻射是平常的1000倍，長期會致癌，已有多起案例！',
+  real:false, why:'謠言！手機充電時的電磁波與平常使用差異不大，「輻射1000倍」毫無根據。手機電磁波屬非游離輻射，與致癌的游離輻射不同。',
+  tip:'💡 看到「XX倍」的驚人數字卻沒有研究出處，多半是謠言。充電避免壓在枕頭下是防過熱，與輻射無關。' },
+{ diff:3, sender:'社區公告轉傳', av:'📡', time:'下午 01:45', cat:'健康謠言', catCls:'cat-health',
+  msg:'反對社區裝5G基地台！世界衛生組織已證實5G電磁波會致癌、殺死免疫細胞，離基地台越近罹癌率越高！',
+  real:false, why:'扭曲事實！WHO從未證實5G致癌。基地台電磁波遠低於國際安全標準，「殺死免疫細胞」是無根據的說法。諷刺的是，基地台越少，手機發射功率反而越強。',
+  tip:'💡 引用「WHO證實」的訊息，可到WHO官網或台灣事實查核中心（tfc-taiwan.org.tw）查證原文。' },
+{ diff:2, sender:'警政署165專線', av:'🚔', time:'上午 09:00', cat:'政府公告', catCls:'cat-govt',
+  msg:'165提醒：詐騙集團假冒公所發送「補助金申請」簡訊。民眾可至「165打詐儀錶板」網站查詢最新詐騙手法與統計。',
+  real:true, why:'正確資訊！警政署確實設有165反詐騙專線與「165打詐儀錶板」網站，公布最新詐騙手法，是查證詐騙的官方管道。',
+  tip:'💡 把165存進電話簿！遇到可疑訊息，撥165或上165官網查證，這是最可靠的防詐工具。' },
+{ diff:3, sender:'衛生所通知', av:'💉', time:'上午 08:40', cat:'政府公告', catCls:'cat-govt',
+  msg:'疾管署：65歲以上長者10月起可同時接種公費流感疫苗與新冠疫苗，左右手各打一針，免疫效果不受影響，歡迎多加利用。',
+  real:true, why:'正確資訊！疾管署確實開放公費流感與新冠疫苗同時接種（不同手臂），研究顯示保護力不互相干擾，長者是優先接種對象。',
+  tip:'💡 疫苗資訊以疾管署官網（cdc.gov.tw）或1922專線為準，不要被「疫苗有毒」的謠言嚇到錯過保護。' },
+{ diff:2, sender:'熱心鄰居', av:'🧻', time:'下午 03:50', cat:'假新聞', catCls:'cat-fake',
+  msg:'內部消息！下週起衛生紙大漲45%，工廠已停止出貨，全聯貨架都空了，快去囤貨，晚了就買不到！',
+  real:false, why:'搶購謠言！「內部消息＋快去囤貨」是典型的恐慌操作，這類訊息曾引發衛生紙之亂。物價調整會有正式公告，不會靠LINE流傳。',
+  tip:'💡 看到「快去搶購」先冷靜：查經濟部或大賣場官方公告。跟著謠言搶購，只會幫謠言成真。' },
+
+/* ── 高混淆度加強題（似真實假、似假實真）── */
+{ diff:3, sender:'營養師好友', av:'🥦', time:'上午 10:20', cat:'健康資訊', catCls:'cat-health',
+  msg:'跟大家分享：冷凍蔬菜是採收後急速冷凍的，營養保留度不輸市場的「新鮮」蔬菜，有時反而更高，可以安心買！',
+  real:true, why:'正確！蔬菜採收後營養會隨時間流失，急速冷凍能鎖住營養。運輸多日的「新鮮」蔬菜，營養可能反而低於冷凍蔬菜。',
+  tip:'💡 「聽起來顛覆常識」的訊息不一定是假的，重點是有沒有科學根據。這則有大量研究支持。' },
+{ diff:3, sender:'診所領藥櫃台', av:'💊', time:'下午 02:30', cat:'健康資訊', catCls:'cat-health',
+  msg:'醫師說明：感冒大多是病毒引起，抗生素只對細菌有效，所以感冒不開抗生素是正確的，亂吃反而會養出抗藥性細菌。',
+  real:true, why:'正確！普通感冒約9成由病毒引起，抗生素無效。要求醫師開抗生素「才有誠意」是錯誤觀念，濫用會導致抗藥性危機。',
+  tip:'💡 「醫師不開藥」不等於「醫術不好」。對症下藥才是專業，這是值得轉傳的正確衛教。' },
+{ diff:3, sender:'早餐店閒聊', av:'🥚', time:'上午 07:50', cat:'健康資訊', catCls:'cat-health',
+  msg:'最新營養學觀點：健康成人每天吃一顆蛋沒問題！食物中的膽固醇對血膽固醇影響有限，不必再怕蛋黃了。',
+  real:true, why:'正確！近年營養學共識：血膽固醇主要受飽和脂肪與體質影響，健康者適量吃蛋（每天一顆）並不會明顯提高風險。「吃蛋傷心臟」是過時觀念。',
+  tip:'💡 營養知識會更新，幾十年前的「常識」可能已被推翻。有慢性病者仍應遵循醫囑調整飲食。' },
+{ diff:3, sender:'血壓計群組', av:'🩺', time:'上午 09:10', cat:'健康謠言', catCls:'cat-health',
+  msg:'量血壓一定要量左手！因為左手離心臟比較近，數值才準確，量右手會低估血壓，很多人都量錯了！',
+  real:false, why:'錯誤！正確做法是第一次左右手都量，之後固定量「數值較高的那隻手」。兩手差異大（超過15-20mmHg）反而要告知醫師，與「離心臟近」無關。',
+  tip:'💡 聽起來有道理的「醫學小知識」最容易騙人。量測方式請以醫師或衛教單張指示為準。' },
+{ diff:3, sender:'保健品團購群', av:'🦴', time:'下午 03:35', cat:'健康謠言', catCls:'cat-health',
+  msg:'維骨力（葡萄糖胺）能重建膝蓋軟骨、逆轉退化性關節炎！以前健保都有給付，就是有效的證明，快幫爸媽訂購！',
+  real:false, why:'誤導！大型研究顯示葡萄糖胺對關節炎的療效不明確，健保正因此於2018年「取消」給付。「重建軟骨、逆轉退化」是誇大宣傳。',
+  tip:'💡 注意話術：「健保曾給付」被包裝成療效證明，事實恰恰相反。保健品宣稱「逆轉」疾病都要存疑。' },
+{ diff:3, sender:'失眠互助社團', av:'🌙', time:'晚上 11:45', cat:'健康謠言', catCls:'cat-health',
+  msg:'褪黑激素是身體天然分泌的，完全沒有副作用！比安眠藥安全一百倍，失眠的人可以放心天天吃、長期吃。',
+  real:false, why:'誤導！「天然」不等於「無副作用」。褪黑激素可能造成頭暈、白天嗜睡，與部分藥物交互作用，長期使用的安全性仍缺乏充分研究，且在台灣屬藥品管理。',
+  tip:'💡 「天然的最安全」「可以天天吃」是保健品行銷話術。長期失眠請就醫找原因，不要自行長期服用助眠劑。' },
+{ diff:3, sender:'來電轉述', av:'📞', time:'下午 01:05', cat:'詐騙訊息', catCls:'cat-scam',
+  msg:'剛接到檢察官電話：我的帳戶涉入洗錢案，為了自證清白，要把存款轉到法院監管的「安全帳戶」，結案後就會歸還，還好有配合！',
+  real:false, why:'典型「假檢警」詐騙！檢警和法院絕對不會用電話要求轉帳，「安全帳戶」根本不存在。錢一轉出就進了詐團帳戶，這是長者受害金額最高的詐騙手法。',
+  tip:'💡 記住鐵律：只要聽到「監管帳戶、安全帳戶」就是詐騙。掛掉電話，撥165或110查證。' },
+{ diff:3, sender:'疫苗接種站', av:'🍤', time:'上午 11:25', cat:'健康謠言', catCls:'cat-health',
+  msg:'提醒長輩：打疫苗前後三天不能吃蛋、海鮮和麻油雞，會誘發過敏、加重副作用，很多人不知道就出事了！',
+  real:false, why:'謠言！沒有科學證據顯示打疫苗前後需要忌口。對疫苗成分過敏與食物過敏是兩回事，「很多人出事」是製造恐慌的虛構說法。',
+  tip:'💡 疫苗注意事項以接種站衛教單與醫護說明為準，網傳「忌口清單」多半是以訛傳訛。' },
+];
+
+/* ═══════════════════════════════════
+   CONSTANTS & STATE
+═══════════════════════════════════ */
+const TOTAL    = 10;  // 每局出題數（從100題中隨機選取）
+const Q_TIME   = 9;
+const DMN_TIME = 15;
+const DM_COLORS = [
+  'linear-gradient(180deg,#c07be0 0%,#8a4ab8 100%)',
+  'linear-gradient(180deg,#f3705f 0%,#c83428 100%)',
+  'linear-gradient(180deg,#9aaa58 0%,#5f7030 100%)',
+  'linear-gradient(180deg,#ffb84a 0%,#e07818 100%)',
+  'linear-gradient(180deg,#7a8ae0 0%,#4a55b0 100%)',
+];
+const DM_LEAVES = ['🍂','🍄','🌑','🥀'];
+
+const TRICKS = {
+  fear:   { name:'恐懼訴求',   icon:'😱', rule:'製造恐慌，讓你失去理性判斷力' },
+  auth:   { name:'假冒權威',   icon:'🎭', rule:'冒充醫師或機關，卻找不到原始出處' },
+  urgent: { name:'緊迫感製造', icon:'⏰', rule:'「立刻」「24小時」讓你失去冷靜查驗的機會' },
+  sci:    { name:'偽科學',     icon:'🔬', rule:'聽起來科學，卻沒有可查驗的正式研究出處' },
+  lure:   { name:'利誘陷阱',   icon:'💰', rule:'天上不掉禮物，高獲利或免費好康必有陷阱' },
+  emo:    { name:'情感操控',   icon:'💔', rule:'激起擔憂或愛心，讓你衝動轉傳而不查證' },
+  crowd:  { name:'從眾心理',   icon:'👥', rule:'「大家都說」「快告訴家人」不代表訊息正確' },
+  real:   { name:'可信資訊',   icon:'✅', rule:'可在官方機構查驗，有明確主責單位的資訊' },
+};
+
+const CAT_LABELS = {
+  'cat-health': { name:'健康謠言', icon:'🏥' },
+  'cat-scam':   { name:'詐騙訊息', icon:'🚨' },
+  'cat-govt':   { name:'政府公告', icon:'🏛️' },
+  'cat-fake':   { name:'假新聞',   icon:'📰' },
+  'cat-custom': { name:'習俗謠言', icon:'🎎' },
+};
+
+function getTrick(q) {
+  if (q.real) return TRICKS.real;
+  const m = q.msg;
+  if (/抽中|中獎|免費領|點數|獎金|頭獎|贈送|年報酬|保證獲利/.test(m)) return TRICKS.lure;
+  if (/立刻|立即|24小時|1小時|3日內|名額有限|緊急通知/.test(m)) return TRICKS.urgent;
+  if (/警察|法院|國稅局|LINE官方|刑事局/.test(m)) return TRICKS.auth;
+  if (/醫師|醫生說|專家|科學家|日本|中醫/.test(m)) return TRICKS.auth;
+  if (/中毒|致癌|死亡|送醫|加護病房|腦瘤|輻射|爆炸/.test(m)) return TRICKS.fear;
+  if (/研究|實驗|酵素|激素|電磁波|化學/.test(m)) return TRICKS.sci;
+  if (q.catCls === 'cat-custom') return TRICKS.emo;
+  if (q.catCls === 'cat-fake') return TRICKS.fear;
+  if (q.catCls === 'cat-scam') return TRICKS.lure;
+  return TRICKS.emo;
+}
+
+let sessionQ = [];  // 本局題目序列
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function buildSession() {
+  // 依難度分層抽題：4簡單+4中等+2困難，由易到難排列形成關卡曲線
+  const easy = shuffle(QS.filter(q => q.diff === 1)).slice(0, 4);
+  const mid  = shuffle(QS.filter(q => q.diff === 2)).slice(0, 4);
+  const hard = shuffle(QS.filter(q => q.diff === 3)).slice(0, 2);
+  sessionQ = [...shuffle(easy), ...shuffle(mid), ...shuffle(hard)].slice(0, TOTAL);
+  // 保底：若分層不足10題，隨機補滿
+  if (sessionQ.length < TOTAL) {
+    const used = new Set(sessionQ);
+    const extra = shuffle(QS.filter(q => !used.has(q))).slice(0, TOTAL - sessionQ.length);
+    sessionQ = [...sessionQ, ...extra];
+  }
+}
+
+let qi, score, wrongCount, streak, correct, demKilled, demonWave, catStats;
+let qTimer, dmTimer;
+let timeLeft, dmTimeLeft;
+let demonScoreDelta = 0;
+let pendingDemonBonus = false;
+let pendingGameOver = false;
+let demons, state, pendingOk, pendingQ, shareText;
+let dotStates = [];  // 'done'|'fail'|'cur'|''
+
+/* ═══════════════════════════════════
+   SCREEN MANAGEMENT
+═══════════════════════════════════ */
+const SCREENS = ['intro','game','feedback','demonScreen','gameOver','final','leaderboard'];
+function show(id) {
+  SCREENS.forEach(s => {
+    const el = document.getElementById(s);
+    el.classList.toggle('hidden', s !== id);
+  });
+  if (id === 'feedback') document.getElementById('feedback').classList.add('vis');
+}
+
+/* ═══════════════════════════════════
+   PARTICLES (intro)
+═══════════════════════════════════ */
+(function spawnParticles() {
+  const colors = ['#a8e050','#c8f070','#80d030','#f5c040','#e8940a','#ffffff','#d0f090'];
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const sz = 4 + Math.random() * 10;
+    Object.assign(p.style, {
+      width: sz+'px', height: sz+'px',
+      background: colors[Math.floor(Math.random()*colors.length)],
+      left: (Math.random()*100)+'%',
+      animationDuration: (8+Math.random()*12)+'s',
+      animationDelay: (Math.random()*12)+'s',
+    });
+    document.getElementById('intro').appendChild(p);
+  }
+})();
+
+/* ═══════════════════════════════════
+   FLASH EFFECT
+═══════════════════════════════════ */
+function flash(color, ms) {
+  const el = document.getElementById('flashOverlay');
+  el.style.background = color;
+  el.style.transition = 'none';
+  el.style.opacity = '0.55';
+  setTimeout(() => {
+    el.style.transition = `opacity ${ms}ms ease`;
+    el.style.opacity = '0';
+  }, 30);
+}
+
+/* ═══════════════════════════════════
+   GAME FLOW
+═══════════════════════════════════ */
+function startGame() {
+  buildSession();
+  qi=0; score=0; wrongCount=0; streak=0; correct=0; demKilled=0; demonWave=1; catStats={};
+  pendingDemonBonus=false; pendingGameOver=false;
+  dotStates = Array(TOTAL).fill('');
+  state='idle';
+  buildDots();
+  updateWrong(); updateScore();
+  show('game');
+  nextQ();
+}
+
+function nextQ() {
+  if (qi >= TOTAL) { showFinal(); return; }
+  if (wrongCount >= 3 || (score <= 0 && wrongCount > 0)) { showGameOver(); return; }
+  state = 'question';
+  const q = sessionQ[qi];
+  document.getElementById('qCounter').textContent = `${qi+1}/${TOTAL}`;
+  dotStates[qi] = 'cur';
+  renderDots();
+
+  document.getElementById('chatBg').innerHTML = `
+    <div class="line-wrap">
+      <div class="line-av">${q.av}</div>
+      <div class="line-col">
+        <div class="line-name">${q.sender}</div>
+        <div class="line-bubble">${q.msg}</div>
+        <div class="line-foot">
+          <span class="line-time">${q.time}</span>
+          <span class="cat-badge ${q.catCls}">${q.cat}</span>
+          <span class="diff-badge diff-${q.diff}">${['','⭐','⭐⭐','⭐⭐⭐'][q.diff]}</span>
+        </div>
+      </div>
+    </div>`;
+  startQTimer();
+}
+
+/* ─── Timer ─────────────────────────────────── */
+function startQTimer() {
+  clearInterval(qTimer);
+  timeLeft = Q_TIME;
+  renderTimer();
+  qTimer = setInterval(() => {
+    timeLeft--;
+    renderTimer();
+    if (timeLeft <= 0) { clearInterval(qTimer); timeoutQ(); }
+  }, 1000);
+}
+
+function renderTimer() {
+  const pct = (timeLeft / Q_TIME) * 100;
+  const fill = document.getElementById('timerFill');
+  const col = timeLeft > 6 ? '#27ae60' : timeLeft > 3 ? '#f39c12' : '#e74c3c';
+  fill.style.width = pct + '%';
+  fill.style.background = col;
+  const dEl = document.getElementById('timerDigits');
+  dEl.textContent = timeLeft + ' 秒';
+  dEl.style.color = timeLeft <= 3 ? '#d13430' : '#4a6a52';
+  dEl.style.fontWeight = '900';
+  if (timeLeft <= 3) dEl.classList.add('timer-urgent');
+  else dEl.classList.remove('timer-urgent');
+  if (timeLeft <= 3) flash('rgba(255,80,0,0.15)', 800);
+}
+
+/* ─── Answer ─────────────────────────────────── */
+function applyWrong() {
+  streak = 0;
+  score = Math.max(0, score - 10);
+  wrongCount++;
+  updateScore();
+  updateWrong();
+  showBigPop('-10分', 'life');
+  flash('rgba(220,0,0,0.28)', 600);
+  pendingDemonBonus = false;
+  if (wrongCount >= 3 || score <= 0) pendingGameOver = true;
+}
+
+function timeoutQ() {
+  if (state !== 'question') return;
+  state = 'feedback';
+  const tq = sessionQ[qi];
+  pendingOk = false; pendingQ = tq;
+  if (!catStats[tq.catCls]) catStats[tq.catCls] = { c:0, t:0 };
+  catStats[tq.catCls].t++;
+  dotStates[qi] = 'fail';
+  applyWrong();
+  updateStreak();
+  showFeedback(false, true);
+}
+
+function answer(userReal) {
+  if (state !== 'question') return;
+  state = 'feedback';
+  clearInterval(qTimer);
+  const q = sessionQ[qi];
+  pendingQ = q;
+  const ok = (userReal === q.real);
+  pendingOk = ok;
+  if (!catStats[q.catCls]) catStats[q.catCls] = { c:0, t:0 };
+  catStats[q.catCls].t++;
+  if (ok) catStats[q.catCls].c++;
+  if (ok) {
+    const bonus = timeLeft >= 6 ? 5 : 0;
+    score += 10 + bonus;
+    streak++; correct++;
+    pendingDemonBonus = (streak % 2 === 0);
+    if (pendingDemonBonus) {
+      showBigPop('⚡ 加分挑戰!', 'bonus');
+    } else {
+      showBigPop(bonus ? '+15分\n速答獎勵!' : '+10分', 'plus');
+    }
+    dotStates[qi] = 'done';
+    updateScore();
+    flash('rgba(0,200,80,0.22)', 600);
+  } else {
+    dotStates[qi] = 'fail';
+    applyWrong();
+  }
+  updateStreak();
+  showFeedback(ok, false);
+}
+
+/* ─── Feedback overlay ───────────────────────── */
+function showFeedback(ok, timeout) {
+  show('feedback');
+  const hdr = document.getElementById('fbHdr');
+  hdr.className = 'fb-hdr ' + (ok ? 'correct' : timeout ? 'timeout' : 'wrong');
+
+  let em, title;
+  if (ok) {
+    em = '✅';
+    if (pendingDemonBonus) title = `🎉 連答2題！獲得加分挑戰！`;
+    else if (streak >= 3)  title = `🔥 答對！連答${streak}題！`;
+    else                   title = '答對了！+10分 👍';
+  } else {
+    em    = timeout ? '⏰' : '❌';
+    const remain = 3 - wrongCount;
+    title = (timeout ? '⏰ 時間到！' : '❌ 答錯了！') + '-10分' +
+            (pendingGameOver ? '' : `（還可錯${remain}次）`);
+  }
+  document.getElementById('fbEm').textContent    = em;
+  document.getElementById('fbTitle').textContent = title;
+  document.getElementById('fbWhy').textContent   = pendingQ.why;
+  document.getElementById('fbTip').textContent   = pendingQ.tip;
+  const trick = getTrick(pendingQ);
+  const chipEl = document.getElementById('trickChip');
+  chipEl.textContent = trick.icon + ' ' + trick.name;
+  chipEl.className = 'trick-chip' + (pendingQ.real ? ' real-chip' : '');
+  document.getElementById('trickRule').textContent = trick.rule;
+  const btn = document.getElementById('fbBtn');
+  if (pendingGameOver)    { btn.textContent = '查看結果 →';     btn.className = 'btn-fb btn-fight'; }
+  else if (pendingDemonBonus) { btn.textContent = '⚡ 開始加分挑戰！'; btn.className = 'btn-fb btn-fight'; }
+  else                    { btn.textContent = '繼續守護 →';     btn.className = 'btn-fb btn-next-q'; }
+}
+
+function afterFeedback() {
+  document.getElementById('feedback').classList.remove('vis');
+  if (pendingGameOver) { showGameOver(); return; }
+  if (pendingDemonBonus) { pendingDemonBonus = false; launchDemons(); return; }
+  qi++; show('game'); nextQ();
+}
+
+/* ═══════════════════════════════════
+   DEMON MODE
+═══════════════════════════════════ */
+let comboCount = 0, comboResetT = null;
+
+const CHAIN_RADIUS = 95; // px，連鎖爆炸範圍
+
+function getDemonCount() {
+  // 有連鎖機制，密度比純點擊版適當降低，保留群聚空間讓連鎖發生
+  // 波1:8 波2:12 波3:16 波4:20 波5:24 波6+:28
+  const base = Math.min(8 + demonWave * 4, 28);
+  return base + Math.floor(Math.random() * 3);
+}
+
+let demonAnimFrame = null;
+
+function getDemonPxPerFrame() {
+  // 每幀移動速度（px），隨波次漸快
+  const wave = Math.min(demonWave, 6);
+  return 0.55 + wave * 0.25;  // 波1:0.8 → 波6:2.05 px/frame
+}
+
+function launchDemons() {
+  show('demonScreen');
+  state = 'demon';
+  comboCount = 0;
+  demonScoreDelta = 0;
+  flash('rgba(220,80,0,0.55)', 350);
+
+  // 爆炸入場動畫
+  const exp = document.getElementById('demonExplosion');
+  exp.classList.remove('hidden');
+  // 強制重播 animation
+  exp.style.animation = 'none';
+  void exp.offsetWidth;
+  exp.style.animation = '';
+  setTimeout(() => exp.classList.add('hidden'), 1150);
+
+  const count = getDemonCount();
+  demonWave++;
+  cancelAnimationFrame(demonAnimFrame);
+  demonAnimFrame = null;
+
+  demons = [];
+  const container = document.getElementById('demonContainer');
+  container.innerHTML = '';
+
+  const W = window.innerWidth, H = window.innerHeight;
+  const marginX = W * 0.12;
+  const demonMinY = Math.floor(H * 0.52);  // 只在下半部
+  const cx = W / 2 - 28, cy = H * 0.72;
+
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const spd   = getDemonPxPerFrame();
+    const d = {
+      id:i, alive:true, ready:false,
+      x: cx, y: cy,
+      vx: Math.cos(angle) * spd,
+      vy: Math.sin(angle) * spd,
+    };
+    demons.push(d);
+
+    const em = document.createElement('div');
+    em.className = 'demon demon-init';
+    const shape = 'dm-s' + (1 + Math.floor(Math.random() * 5));
+    const oneEye = Math.random() < 0.22 ? ' dm-one' : '';
+    em.innerHTML = `<div class="dm-fig">
+      <div class="dm-leaf">${DM_LEAVES[Math.floor(Math.random() * DM_LEAVES.length)]}</div>
+      <div class="dm-body ${shape}" style="background:${DM_COLORS[Math.floor(Math.random() * DM_COLORS.length)]}">
+        <div class="dm-eyes${oneEye}"><span></span><span></span></div>
+        <div class="dm-mouth"></div>
+      </div>
+    </div>`;
+    const sz = 46 + Math.floor(Math.random() * 16);
+    em.style.fontSize = sz + 'px';
+    em.id = 'dm' + i;
+    em.style.left = cx + 'px';
+    em.style.top  = cy + 'px';
+
+    const shd = document.createElement('div');
+    shd.className = 'demon-shd';
+    em.appendChild(shd);
+
+    const onHit = () => smash(d, em);
+    em.addEventListener('click', onHit);
+    em.addEventListener('touchstart', e => { e.preventDefault(); onHit(); }, { passive:false });
+    container.appendChild(em);
+
+    // 依序從中心散開到下半部隨機位置
+    const delay = 620 + i * 14;
+    setTimeout(() => {
+      if (!d.alive) return;
+      em.classList.remove('demon-init');
+      d.x = marginX + Math.random() * (W - marginX * 2 - 60);
+      d.y = demonMinY + Math.random() * (H - demonMinY - 110);
+      em.style.left = d.x + 'px';
+      em.style.top  = d.y + 'px';
+      d.ready = true;
+    }, delay);
+  }
+
+  // 等第一隻出現後啟動 rAF 迴圈
+  setTimeout(() => startDemonLoop(), 650);
+
+  renderDemonCount();
+  startDemonTimer();
+}
+
+function startDemonLoop() {
+  const W = window.innerWidth, H = window.innerHeight;
+  const minX = W * 0.04, maxX = W - W * 0.04 - 60;
+  const minY = Math.floor(H * 0.52), maxY = H - 110;
+
+  function tick() {
+    demons.forEach(d => {
+      if (!d.alive || !d.ready) return;
+      d.x += d.vx;
+      d.y += d.vy;
+      // 碰牆反彈
+      if (d.x < minX) { d.x = minX; d.vx = Math.abs(d.vx); }
+      if (d.x > maxX) { d.x = maxX; d.vx = -Math.abs(d.vx); }
+      if (d.y < minY) { d.y = minY; d.vy = Math.abs(d.vy); }
+      if (d.y > maxY) { d.y = maxY; d.vy = -Math.abs(d.vy); }
+      const el = document.getElementById('dm' + d.id);
+      if (el) { el.style.left = d.x + 'px'; el.style.top = d.y + 'px'; }
+    });
+    if (state === 'demon') demonAnimFrame = requestAnimationFrame(tick);
+  }
+  demonAnimFrame = requestAnimationFrame(tick);
+}
+
+function smash(d, el, chainDepth = 0) {
+  if (!d.alive) return;
+  d.alive = false;
+  demKilled++;
+  score += 2; demonScoreDelta += 2; updateScore();
+  if (navigator.vibrate) navigator.vibrate(25);
+
+  const x = d.x ?? parseFloat(el.style.left);
+  const y = d.y ?? parseFloat(el.style.top);
+  const c = document.getElementById('demonContainer');
+
+  // 連擊計數（連鎖擊殺也算）
+  comboCount++;
+  clearTimeout(comboResetT);
+  comboResetT = setTimeout(() => { comboCount = 0; }, 750);
+
+  // 錘子敲擊（僅直接點擊時）
+  if (chainDepth === 0) {
+    const hm = document.createElement('div');
+    hm.className = 'hammer-hit';
+    hm.textContent = '🔨';
+    hm.style.left = (x + 14) + 'px'; hm.style.top = (y - 34) + 'px';
+    c.appendChild(hm);
+    setTimeout(() => hm.remove(), 340);
+  }
+
+  // 爆炸 splat
+  const splat = document.createElement('div');
+  splat.className = 'splat';
+  splat.textContent = chainDepth > 0 ? '💢' : '💥';
+  splat.style.left = x + 'px'; splat.style.top = y + 'px';
+  c.appendChild(splat);
+  setTimeout(() => splat.remove(), 550);
+
+  // 衝擊波環
+  const ring = document.createElement('div');
+  ring.className = 'hit-ring';
+  ring.style.left = (x + 24) + 'px';
+  ring.style.top  = (y + 24) + 'px';
+  c.appendChild(ring);
+  setTimeout(() => ring.remove(), 420);
+
+  // 直接點擊：顯示連鎖範圍光圈 + 掃描連鎖
+  if (chainDepth === 0) {
+    // 連鎖範圍指示圈
+    const aoe = document.createElement('div');
+    aoe.className = 'chain-aoe';
+    aoe.style.left = (x + 24) + 'px';
+    aoe.style.top  = (y + 24) + 'px';
+    c.appendChild(aoe);
+    setTimeout(() => aoe.remove(), 480);
+
+    // 四散火花
+    const dirs = [[-1,-1],[1,-1],[-1,1],[1,1],[0,-1],[0,1]];
+    dirs.forEach(([dx,dy], i) => {
+      const sp = document.createElement('div');
+      sp.className = 'spark';
+      sp.textContent = ['✨','⭐','💫','🌟','⚡','🔥'][i];
+      sp.style.left = (x + 20) + 'px'; sp.style.top = (y + 20) + 'px';
+      const dist = 40 + Math.random() * 40;
+      sp.style.setProperty('--sx', (dx*dist+(Math.random()-.5)*20)+'px');
+      sp.style.setProperty('--sy', (dy*dist+(Math.random()-.5)*20)+'px');
+      c.appendChild(sp);
+      setTimeout(() => sp.remove(), 620);
+    });
+
+    // 掃描連鎖目標
+    let chainHits = 0;
+    demons.forEach(other => {
+      if (!other.alive || other.id === d.id) return;
+      const dx = other.x - x, dy = other.y - y;
+      if (Math.sqrt(dx*dx + dy*dy) < CHAIN_RADIUS) {
+        chainHits++;
+        const oEl = document.getElementById('dm' + other.id);
+        if (oEl) setTimeout(() => smash(other, oEl, 1), 60 + chainHits * 55);
+      }
+    });
+
+    // 連鎖提示文字
+    if (chainHits > 0) {
+      const chainPts = chainHits * 4;
+      score += chainPts;
+      demonScoreDelta += chainPts;
+      updateScore();
+      showToast(`+${chainPts} 連鎖!`, 'plus');
+      const ct = document.createElement('div');
+      ct.className = 'chain-pop';
+      ct.style.left = (x - 10) + 'px'; ct.style.top = (y - 18) + 'px';
+      ct.textContent = chainHits >= 4 ? `⚡⚡ ${chainHits}連鎖FEVER!!`
+                     : chainHits >= 2 ? `⚡ ${chainHits}連鎖！`
+                     : `⚡ 連鎖！`;
+      ct.style.fontSize = chainHits >= 4 ? '22px' : chainHits >= 2 ? '19px' : '16px';
+      c.appendChild(ct);
+      setTimeout(() => ct.remove(), 1100);
+    }
+  }
+
+  // 連擊 / 分數文字（連鎖擊殺用小字）
+  const pop = document.createElement('div');
+  pop.className = 'combo-pop';
+  pop.style.left = (x - 10) + 'px'; pop.style.top = (y - 5) + 'px';
+  if (chainDepth > 0) {
+    pop.textContent = '+chain'; pop.style.fontSize = '13px'; pop.style.color = '#ffe040';
+  } else if (comboCount >= 8) {
+    pop.textContent = `🔥🔥 ×${comboCount} FEVER!!`; pop.style.fontSize='22px'; pop.style.color='#ff4400';
+  } else if (comboCount >= 5) {
+    pop.textContent = `🔥 ×${comboCount} COMBO!`; pop.style.fontSize='20px'; pop.style.color='#ff8800';
+  } else if (comboCount >= 3) {
+    pop.textContent = `✨ ×${comboCount} COMBO`; pop.style.fontSize='17px'; pop.style.color='#ffe040';
+  } else {
+    pop.textContent = '+5'; pop.style.fontSize='16px'; pop.style.color='#ffe040';
+  }
+  c.appendChild(pop);
+  setTimeout(() => pop.remove(), 900);
+
+  if (chainDepth === 0) shakeDemon();
+  el.remove();
+  renderDemonCount();
+  if (demons.every(d => !d.alive)) allCleared();
+}
+
+function shakeDemon() {
+  const s = document.getElementById('demonScreen');
+  s.classList.remove('do-shake');
+  void s.offsetWidth;
+  s.classList.add('do-shake');
+  setTimeout(() => s.classList.remove('do-shake'), 200);
+}
+
+function renderDemonCount() {
+  const n = demons.filter(d => d.alive).length;
+  const bigEl = document.getElementById('dBigNum');
+  bigEl.textContent = n;
+  bigEl.classList.remove('smash');
+  void bigEl.offsetWidth;
+  bigEl.classList.add('smash');
+  document.getElementById('dAlert').textContent = n > 0 ? '⚡ 加分挑戰！' : '✅ 全部清除！';
+}
+
+function startDemonTimer() {
+  clearInterval(dmTimer);
+  dmTimeLeft = DMN_TIME;
+  renderDTbar();
+  dmTimer = setInterval(() => {
+    dmTimeLeft--;
+    renderDTbar();
+    if (dmTimeLeft <= 0) { clearInterval(dmTimer); demonExpired(); }
+  }, 1000);
+}
+
+function renderDTbar() {
+  const pct = (dmTimeLeft / DMN_TIME * 100);
+  const bar = document.getElementById('dTbar');
+  bar.style.width = pct + '%';
+  bar.style.background = dmTimeLeft > 4 ? '#27ae60' : dmTimeLeft > 2 ? '#f39c12' : '#e74c3c';
+  if (dmTimeLeft <= 2) flash('rgba(200,0,0,0.12)', 800);
+}
+
+function demonExpired() {
+  cancelAnimationFrame(demonAnimFrame); demonAnimFrame = null;
+  const rem = demons.filter(d => d.alive).length;
+  demons.forEach(d => { d.alive=false; const el=document.getElementById('dm'+d.id); if(el) el.remove(); });
+  showDemonResult(rem);
+}
+
+function allCleared() {
+  clearInterval(dmTimer);
+  cancelAnimationFrame(demonAnimFrame); demonAnimFrame = null;
+  score += 5; demonScoreDelta += 5; updateScore();
+  flash('rgba(0,200,80,0.3)', 500);
+  showDemonResult(0);
+}
+
+function showDemonResult(rem) {
+  const pts = demonScoreDelta;
+  document.getElementById('demonContainer').innerHTML = rem > 0
+    ? `<div class="demon-result"><div class="dr-icon">😅</div><div class="dr-text" style="color:#fff">有 ${rem} 隻跑掉了<br>${pts > 0 ? '加分 +' + pts + '分！' : '繼續加油！'}</div></div>`
+    : `<div class="demon-result"><div class="dr-icon">🎉</div><div class="dr-text" style="color:#fff">全部打倒！加分 +${pts}分！</div></div>`;
+  setTimeout(() => {
+    qi++; show('game'); nextQ();
+    if (pts > 0) {
+      setTimeout(() => showBigPop(`+${pts}分\n${rem === 0 ? '完美清除!' : '加分挑戰!'}`, 'bonus'), 200);
+    }
+  }, rem > 0 ? 1300 : 1100);
+}
+
+/* ═══════════════════════════════════
+   UI HELPERS
+═══════════════════════════════════ */
+function updateWrong() {
+  for (let i = 0; i < 3; i++) {
+    const el = document.getElementById('wm' + i);
+    if (!el) continue;
+    if (i < wrongCount) { el.textContent = '❌'; el.classList.add('hit'); }
+    else                { el.textContent = '○'; el.classList.remove('hit'); }
+  }
+}
+
+function updateScore() {
+  document.getElementById('scoreBadge').textContent = score + '分';
+}
+
+function showToast(text, type) {
+  const area = document.getElementById('toastArea');
+  if (!area) return;
+  const el = document.createElement('div');
+  el.className = 'score-toast toast-' + type;
+  el.textContent = text;
+  area.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+function showBigPop(text, type) {
+  const el = document.getElementById('scoreBigPop');
+  if (!el) return;
+  el.innerHTML = `<div class="sbp-wrap sbp-${type}">${text}</div>`;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.innerHTML = ''; }, 1250);
+}
+
+function updateStreak() {
+  const zone = document.getElementById('streakZone');
+  if (streak % 2 === 1) {
+    zone.innerHTML = `<div class="streak-chip">🔥 連答${streak}題！再答1題→ ⚡加分挑戰！</div>`;
+  } else if (streak > 0) {
+    zone.innerHTML = `<div class="streak-chip">🔥 連答${streak}題！</div>`;
+  } else {
+    zone.innerHTML = '';
+  }
+}
+
+function buildDots() {
+  const wrap = document.getElementById('progDots');
+  wrap.innerHTML = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'pd'+i;
+    wrap.appendChild(d);
+  }
+}
+
+function renderDots() {
+  dotStates.forEach((s, i) => {
+    const el = document.getElementById('pd'+i);
+    if (!el) return;
+    el.className = 'dot' + (s ? ' '+s : '');
+  });
+}
+
+/* ═══════════════════════════════════
+   CONFETTI
+═══════════════════════════════════ */
+let confettiAnim;
+function launchConfetti(stars) {
+  const canvas = document.getElementById('confettiCanvas');
+  canvas.classList.remove('hidden');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const pieces = [];
+  const colors = ['#f39c12','#e74c3c','#2ecc71','#3498db','#9b59b6','#1abc9c','#f1c40f'];
+  const total = stars >= 3 ? 120 : stars >= 2 ? 70 : 40;
+  for (let i = 0; i < total; i++) {
+    pieces.push({
+      x: Math.random()*canvas.width, y: -20,
+      w: 7+Math.random()*7, h: 10+Math.random()*12,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      rot: Math.random()*360, rotV: (Math.random()-0.5)*8,
+      vx: (Math.random()-0.5)*4, vy: 2+Math.random()*4,
+      opacity: 1,
+    });
+  }
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.rot += p.rotV;
+      if (t > 120) p.opacity -= 0.015;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.globalAlpha = Math.max(0,p.opacity);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+    });
+    t++;
+    if (t < 200) confettiAnim = requestAnimationFrame(draw);
+    else canvas.classList.add('hidden');
+  }
+  cancelAnimationFrame(confettiAnim);
+  confettiAnim = requestAnimationFrame(draw);
+}
+
+/* ═══════════════════════════════════
+   END SCREENS
+═══════════════════════════════════ */
+function showFinal() {
+  clearInterval(qTimer); clearInterval(dmTimer);
+  const acc = Math.round((correct/TOTAL)*100);
+  let medal, rank, stars;
+  if      (score >= 120){ medal='🏆'; rank='頂尖防謠大師';   stars=3; }
+  else if (score >= 95 ){ medal='🥇'; rank='家族守護英雄';   stars=3; }
+  else if (score >= 70 ){ medal='🛡️'; rank='資深謠言偵探';  stars=2; }
+  else if (score >= 45 ){ medal='⚔️'; rank='見習衛士';      stars=1; }
+  else                  { medal='🔰'; rank='新手衛士';       stars=0; }
+
+  document.getElementById('finalMedal').textContent = medal;
+  document.getElementById('finalRank').textContent  = rank;
+  document.getElementById('finalSub').textContent   = `最終得分 ${score} 分`;
+
+  const sr = document.getElementById('starsRow');
+  sr.innerHTML = '';
+  for (let i=0;i<3;i++){
+    const s=document.createElement('div');
+    s.className='star'+(i<stars?' lit':'');
+    s.textContent='⭐';
+    if(i<stars) s.style.animationDelay=(i*0.15)+'s';
+    sr.appendChild(s);
+  }
+
+  document.getElementById('fCorrect').textContent = `${correct}/${TOTAL}`;
+  document.getElementById('fAcc').textContent     = `${acc}%`;
+  document.getElementById('fScore').textContent   = score;
+  document.getElementById('fDemons').textContent  = demKilled;
+
+  // 防謠能力報告
+  const reportEl = document.getElementById('reportSection');
+  const catEntries = Object.entries(catStats).filter(([,v]) => v.t > 0);
+  if (catEntries.length > 0) {
+    reportEl.classList.remove('hidden');
+    let bestKey = null, worstKey = null, bestAcc = -1, worstAcc = 101;
+    catEntries.forEach(([key, v]) => {
+      const a = v.t > 0 ? Math.round(v.c / v.t * 100) : 0;
+      if (a > bestAcc) { bestAcc = a; bestKey = key; }
+      if (a < worstAcc) { worstAcc = a; worstKey = key; }
+    });
+    let rHtml = `<div class="report-title">📋 防謠能力報告</div>`;
+    catEntries.forEach(([key, v]) => {
+      const a = v.t > 0 ? Math.round(v.c / v.t * 100) : 0;
+      const col = a >= 80 ? '#538d4e' : a >= 50 ? '#b59f3b' : '#b02020';
+      const cl = CAT_LABELS[key] || { icon:'', name: key };
+      rHtml += `<div class="report-cat-row">
+        <div class="report-cat-label">${cl.icon} ${cl.name}</div>
+        <div class="report-bar-outer"><div class="report-bar-fill" style="width:${a}%;background:${col}"></div></div>
+        <div class="report-bar-pct">${a}%</div>
+      </div>`;
+    });
+    rHtml += `<div class="report-highlights">`;
+    const bcl = CAT_LABELS[bestKey] || { icon:'', name: bestKey };
+    rHtml += `<div class="report-hl best"><div class="report-hl-label">擅長項目</div><div class="report-hl-val">${bcl.icon} ${bcl.name}<br>${bestAcc}% 正確</div></div>`;
+    if (worstKey && worstKey !== bestKey) {
+      const wcl = CAT_LABELS[worstKey] || { icon:'', name: worstKey };
+      rHtml += `<div class="report-hl warn"><div class="report-hl-label">需多注意</div><div class="report-hl-val">${wcl.icon} ${wcl.name}<br>${worstAcc}% 正確</div></div>`;
+    }
+    rHtml += `</div>`;
+    reportEl.innerHTML = rHtml;
+  } else {
+    reportEl.classList.add('hidden');
+  }
+
+  const brag = acc >= 90 ? `我拿下【${rank}】${'⭐'.repeat(stars)}，想超越我？沒那麼容易 😏`
+             : acc >= 70 ? `我拿到【${rank}】${'⭐'.repeat(stars)}，聽說很少人能拿滿星，換你試試？`
+             : `我只拿到【${rank}】，不甘心！這些謠言太狡猾了，不信你來 😤`;
+  shareText =
+    `🚨 敢不敢來測一下？🚨\n` +
+    `每天LINE群組收到的訊息，你分得出真假嗎？\n\n` +
+    `${brag}\n\n` +
+    `📊 我的成績：${score}分｜正確率 ${acc}%\n` +
+    `🔨 敲爆了 ${demKilled} 隻謠言惡魔\n\n` +
+    `⏱️ 一題只有9秒，答錯3次直接出局，\n` +
+    `很多題連我都差點被騙到...\n\n` +
+    `👉 玩「家族衛士：謠言大作戰」，看你能撐到第幾題！`;
+  document.getElementById('shareCard').textContent = shareText;
+  pendingLbSave = { score, acc, correct, rank };
+  show('final');
+  launchConfetti(stars);
+}
+
+function showGameOver() {
+  clearInterval(qTimer); clearInterval(dmTimer);
+  demons && demons.forEach(d => clearTimeout(d.crawlT));
+  document.getElementById('goCorrect').textContent = correct;
+  document.getElementById('goScore').textContent   = score;
+  document.getElementById('goDemons').textContent  = demKilled;
+  document.getElementById('goSub').textContent = wrongCount >= 3
+    ? `答錯了3題，謠言趁虛而入...\n每一題的解析都是防謠知識，再挑戰一次！`
+    : `分數歸零，守護力耗盡...\n穩紮穩打，再試一次！`;
+  show('gameOver');
+}
+
+/* ═══════════════════════════════════
+   LEADERBOARD
+═══════════════════════════════════ */
+const LS_KEY = 'fgScores_v1';
+
+function getScores() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function saveScore(name, scoreVal, accVal, correctVal, rankVal) {
+  const scores = getScores();
+  const entry = {
+    name: (name || '匿名玩家').trim() || '匿名玩家',
+    score: scoreVal, acc: accVal, correct: correctVal,
+    rank: rankVal,
+    date: new Date().toLocaleDateString('zh-TW', { month:'numeric', day:'numeric' }),
+    ts: Date.now(),
+  };
+  scores.push(entry);
+  scores.sort((a, b) => b.score - a.score || b.ts - a.ts);
+  localStorage.setItem(LS_KEY, JSON.stringify(scores.slice(0, 50)));
+  return scores.findIndex(e => e.ts === entry.ts);
+}
+
+let pendingLbSave = null; // holds data to save when showLeaderboard is called
+
+function showLeaderboard(fromGame) {
+  // Save score if coming from a finished game
+  let myIdx = -1;
+  if (fromGame && pendingLbSave) {
+    const nm = document.getElementById('playerNameInput').value;
+    const p = pendingLbSave;
+    myIdx = saveScore(nm, p.score, p.acc, p.correct, p.rank);
+    pendingLbSave = null;
+  }
+
+  const scores = getScores();
+  const lbList = document.getElementById('lbList');
+  const medals = ['🥇','🥈','🥉'];
+
+  if (scores.length === 0) {
+    lbList.innerHTML = `<div class="lb-empty">還沒有紀錄<br>快來第一個上榜！🎯</div>`;
+  } else {
+    lbList.innerHTML = scores.slice(0, 10).map((e, i) => {
+      const isMe = fromGame && i === myIdx;
+      const rankIcon = i < 3 ? medals[i] : `<span style="color:#706050">${i+1}</span>`;
+      return `<div class="lb-row${isMe ? ' me' : ''}">
+        <div class="lb-rank">${rankIcon}</div>
+        <div class="lb-name${isMe ? ' me-name' : ''}">${e.name}${isMe ? '<span class="lb-new-badge">NEW</span>' : ''}</div>
+        <div>
+          <div class="lb-score">${e.score}分</div>
+          <div class="lb-acc">${e.acc}% 正確</div>
+        </div>
+        <div class="lb-date">${e.date}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const sub = document.getElementById('lbSub');
+  if (myIdx === 0) sub.textContent = '🎉 恭喜！你是目前第一名！';
+  else if (myIdx >= 0) sub.textContent = `你排名第 ${myIdx + 1}，繼續加油！`;
+  else sub.textContent = '看看誰是家族謠言剋星！';
+
+  show('leaderboard');
+}
+
+function copyShare() {
+  const btn = document.querySelector('.btn-copy');
+  navigator.clipboard.writeText(shareText).then(() => {
+    btn.textContent = '✅ 已複製！快分享給家人！';
+    setTimeout(() => btn.textContent = '📋 複製分享給家人', 2400);
+  }).catch(() => alert(shareText));
+}
+
+function restart() {
+  clearInterval(qTimer); clearInterval(dmTimer);
+  cancelAnimationFrame(confettiAnim);
+  cancelAnimationFrame(demonAnimFrame); demonAnimFrame = null;
+  document.getElementById('confettiCanvas').classList.add('hidden');
+  document.getElementById('feedback').classList.remove('vis');
+  pendingLbSave = null;
+  show('intro');
+}
+</script>
+</body>
+</html>
