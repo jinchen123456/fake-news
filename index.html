@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>家族衛士：謠言大作戰</title>
+<title>真相守護師 — 增強防騙免疫力</title>
 <style>
 :root {
   /* 極簡可愛系 — 大量留白、扁平色塊、柔和陰影 */
@@ -27,6 +27,12 @@
   --red:      #ff6b6b;
   --red-d:    #e5484d;
   --red-3d:   #b03030;
+
+  /* 主品牌色：天下紅 */
+  --brand:    #D71920;
+  --brand-d:  #B01218;
+  --brand-3d: #7D0C10;
+  --brand-soft: #ffe7e8;
 
   --text:     #2f3e33;
   --text-mid: #5c6f61;
@@ -91,8 +97,8 @@ html, body { height:100dvh; }
 .mascot-blush { position:absolute; top:43px; width:11px; height:6px; background:rgba(255,140,130,.55); border-radius:50%; }
 .mascot-blush.l { left:12px; } .mascot-blush.r { right:12px; }
 
-.intro-title { font-size:36px; font-weight:900; letter-spacing:3px; color:var(--text); }
-.intro-sub { font-size:15px; color:var(--text-soft); letter-spacing:3px; margin:6px 0 28px; font-weight:600; }
+.intro-title { font-size:36px; font-weight:900; letter-spacing:3px; color:var(--brand); }
+.intro-sub { font-size:15px; color:var(--text-mid); letter-spacing:2.5px; margin:6px 0 28px; font-weight:700; }
 
 .steps-box {
   background:var(--bg-card); border-radius:24px;
@@ -103,21 +109,21 @@ html, body { height:100dvh; }
 .step-row:first-child{padding-top:0} .step-row:last-child{padding-bottom:0}
 .step-num {
   width:28px; height:28px; border-radius:50%; flex-shrink:0;
-  background:var(--green); color:#fff;
+  background:var(--brand); color:#fff;
   display:flex; align-items:center; justify-content:center;
   font-size:13px; font-weight:900; margin-top:4px;
 }
 .step-txt { font-size:16px; line-height:2.1; color:var(--text-mid); }
 
 .btn-start {
-  background:var(--green); color:#fff; border:none;
+  background:var(--brand); color:#fff; border:none;
   border-radius:999px; padding:19px 60px; font-size:21px; font-weight:900;
   cursor:pointer; letter-spacing:2px;
-  box-shadow:0 8px 22px rgba(81,193,81,.45);
+  box-shadow:0 8px 22px rgba(215,25,32,.45);
   transition:transform .12s, box-shadow .12s;
   animation:btnBreath 2.4s ease-in-out infinite;
 }
-.btn-start:active { transform:scale(.95); box-shadow:0 4px 12px rgba(81,193,81,.4); animation:none; }
+.btn-start:active { transform:scale(.95); box-shadow:0 4px 12px rgba(215,25,32,.4); animation:none; }
 @keyframes btnBreath { 0%,100%{transform:scale(1)} 50%{transform:scale(1.035)} }
 @keyframes btnPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.03)} }
 
@@ -137,9 +143,9 @@ html, body { height:100dvh; }
 .gd-fill::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent); animation:shimmer 2s linear infinite; }
 @keyframes shimmer { from{transform:translateX(-100%)} to{transform:translateX(200%)} }
 .score-badge {
-  background:var(--green); color:#fff; border-radius:999px; padding:6px 16px;
+  background:var(--brand); color:#fff; border-radius:999px; padding:6px 16px;
   font-size:15px; font-weight:900; white-space:nowrap; min-width:58px; text-align:center;
-  box-shadow:0 3px 10px rgba(81,193,81,.35);
+  box-shadow:0 3px 10px rgba(215,25,32,.35);
 }
 .q-counter { font-size:13px; color:var(--text-soft); font-weight:700; white-space:nowrap; }
 
@@ -590,7 +596,7 @@ html, body { height:100dvh; }
 
 /* ─── LEADERBOARD SCREEN ──────────────── */
 #leaderboard { z-index:46; overflow-y:auto; padding:30px 20px; padding-top:max(30px, env(safe-area-inset-top)); padding-bottom:max(30px, env(safe-area-inset-bottom)); }
-.lb-title { font-size:25px; font-weight:900; color:var(--text); text-align:center; margin-bottom:4px; letter-spacing:2px; }
+.lb-title { font-size:25px; font-weight:900; color:var(--brand); text-align:center; margin-bottom:4px; letter-spacing:2px; }
 .lb-sub { font-size:13px; color:var(--text-soft); text-align:center; margin-bottom:22px; }
 .lb-list { width:100%; max-width:380px; margin:0 auto 22px; }
 .lb-row {
@@ -611,7 +617,7 @@ html, body { height:100dvh; }
   font-size:11px; font-weight:900; background:var(--green); color:#fff;
   border-radius:999px; padding:2px 10px; margin-left:4px; vertical-align:middle;
 }
-.btn-lb-play { background:var(--green); color:#fff; border:none; border-radius:999px; padding:18px; font-size:19px; font-weight:900; cursor:pointer; display:block; width:100%; max-width:380px; margin:0 auto 12px; box-shadow:0 6px 18px rgba(81,193,81,.4); transition:transform .12s; }
+.btn-lb-play { background:var(--brand); color:#fff; border:none; border-radius:999px; padding:18px; font-size:19px; font-weight:900; cursor:pointer; display:block; width:100%; max-width:380px; margin:0 auto 12px; box-shadow:0 6px 18px rgba(215,25,32,.4); transition:transform .12s; }
 .btn-lb-play:active { transform:scale(.96); }
 .btn-lb-home { background:var(--bg-card); color:var(--text-mid); border:none; border-radius:999px; padding:14px; font-size:15px; cursor:pointer; display:block; width:100%; max-width:380px; margin:0 auto; font-weight:700; box-shadow:0 2px 10px var(--shadow); }
 
@@ -794,8 +800,8 @@ html, body { height:100dvh; }
       </div>
     </div>
   </div>
-  <div class="intro-title">家族衛士</div>
-  <div class="intro-sub">謠言大作戰</div>
+  <div class="intro-title">真相守護師</div>
+  <div class="intro-sub">增強防騙免疫力</div>
   <div class="steps-box">
     <div class="step-row"><div class="step-num">1</div><div class="step-txt">判斷訊息真假，答對 <b>+10分</b></div></div>
     <div class="step-row"><div class="step-num">2</div><div class="step-txt">
@@ -896,7 +902,7 @@ html, body { height:100dvh; }
 <!-- ══ GAME OVER ═══════════════════════════════════════════ -->
 <div class="screen hidden" id="gameOver">
   <div class="go-icon">💔</div>
-  <div class="go-title">家族守護失敗</div>
+  <div class="go-title">免疫力尚需鍛鍊</div>
   <div class="go-sub" id="goSub"></div>
   <div class="go-stats">
     <div class="go-stat"><div class="go-num" id="goCorrect">0</div><div class="go-lbl">答對題數</div></div>
@@ -928,8 +934,8 @@ html, body { height:100dvh; }
 
 <!-- ══ LEADERBOARD ═════════════════════════════════════════ -->
 <div class="screen hidden" id="leaderboard">
-  <div class="lb-title">🏆 家族防謠排行榜</div>
-  <div class="lb-sub" id="lbSub">看看誰是家族謠言剋星！</div>
+  <div class="lb-title">🏆 真相守護師排行榜</div>
+  <div class="lb-sub" id="lbSub">看看誰是頂尖真相守護師！</div>
   <div class="lb-list" id="lbList"></div>
   <button class="btn-lb-play" onclick="restart()">🔄 再玩一次挑戰第一</button>
   <button class="btn-lb-home" onclick="show('intro')">← 回首頁</button>
@@ -2781,11 +2787,11 @@ function showFinal() {
   clearInterval(qTimer); clearInterval(dmTimer);
   const acc = Math.round((correct/TOTAL)*100);
   let medal, rank, stars;
-  if      (score >= 120){ medal='🏆'; rank='頂尖防謠大師';   stars=3; }
-  else if (score >= 95 ){ medal='🥇'; rank='家族守護英雄';   stars=3; }
-  else if (score >= 70 ){ medal='🛡️'; rank='資深謠言偵探';  stars=2; }
-  else if (score >= 45 ){ medal='⚔️'; rank='見習衛士';      stars=1; }
-  else                  { medal='🔰'; rank='新手衛士';       stars=0; }
+  if      (score >= 120){ medal='🏆'; rank='頂尖真相守護師'; stars=3; }
+  else if (score >= 95 ){ medal='🥇'; rank='資深真相守護師'; stars=3; }
+  else if (score >= 70 ){ medal='🛡️'; rank='中階真相守護師'; stars=2; }
+  else if (score >= 45 ){ medal='⚔️'; rank='見習守護師';    stars=1; }
+  else                  { medal='🔰'; rank='新手學徒';       stars=0; }
 
   document.getElementById('finalMedal').textContent = medal;
   document.getElementById('finalRank').textContent  = rank;
@@ -2806,7 +2812,7 @@ function showFinal() {
   document.getElementById('fScore').textContent   = score;
   document.getElementById('fDemons').textContent  = demKilled;
 
-  // 防謠能力報告
+  // 防騙免疫力分析
   const reportEl = document.getElementById('reportSection');
   const catEntries = Object.entries(catStats).filter(([,v]) => v.t > 0);
   if (catEntries.length > 0) {
@@ -2817,7 +2823,7 @@ function showFinal() {
       if (a > bestAcc) { bestAcc = a; bestKey = key; }
       if (a < worstAcc) { worstAcc = a; worstKey = key; }
     });
-    let rHtml = `<div class="report-title">📋 防謠能力報告</div>`;
+    let rHtml = `<div class="report-title">📋 防騙免疫力分析</div>`;
     catEntries.forEach(([key, v]) => {
       const a = v.t > 0 ? Math.round(v.c / v.t * 100) : 0;
       const col = a >= 80 ? '#538d4e' : a >= 50 ? '#b59f3b' : '#b02020';
@@ -2845,14 +2851,14 @@ function showFinal() {
              : acc >= 70 ? `我拿到【${rank}】${'⭐'.repeat(stars)}，聽說很少人能拿滿星，換你試試？`
              : `我只拿到【${rank}】，不甘心！這些謠言太狡猾了，不信你來 😤`;
   shareText =
-    `🚨 敢不敢來測一下？🚨\n` +
+    `🚨 你的防騙免疫力夠強嗎？🚨\n` +
     `每天LINE群組收到的訊息，你分得出真假嗎？\n\n` +
     `${brag}\n\n` +
     `📊 我的成績：${score}分｜正確率 ${acc}%\n` +
-    `🔨 敲爆了 ${demKilled} 隻謠言惡魔\n\n` +
+    `🔨 擊退了 ${demKilled} 隻謠言惡魔\n\n` +
     `⏱️ 一題只有9秒，答錯3次直接出局，\n` +
     `很多題連我都差點被騙到...\n\n` +
-    `👉 玩「家族衛士：謠言大作戰」，看你能撐到第幾題！`;
+    `👉 玩「真相守護師：增強防騙免疫力」，看你能撐到第幾題！`;
   document.getElementById('shareCard').textContent = shareText;
   pendingLbSave = { score, acc, correct, rank };
   show('final');
@@ -2866,8 +2872,8 @@ function showGameOver() {
   document.getElementById('goScore').textContent   = score;
   document.getElementById('goDemons').textContent  = demKilled;
   document.getElementById('goSub').textContent = wrongCount >= 3
-    ? `答錯了3題，謠言趁虛而入...\n每一題的解析都是防謠知識，再挑戰一次！`
-    : `分數歸零，守護力耗盡...\n穩紮穩打，再試一次！`;
+    ? `答錯了3題，謠言趁虛而入...\n每一題的解析都是防騙抗體，再挑戰一次！`
+    : `分數歸零，免疫力耗盡...\n穩紮穩打，再試一次！`;
   show('gameOver');
 }
 
