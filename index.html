@@ -1700,7 +1700,7 @@ function startGame() {
 }
 
 function nextQ() {
-  if (qi >= TOTAL) { showFinal(); return; }
+  if (qi >= TOTAL) { launchFinalBonus(); return; }
   if (wrongCount >= 3 || (score <= 0 && wrongCount > 0)) { showGameOver(); return; }
   state = 'question';
   const q = sessionQ[qi];
@@ -1853,8 +1853,12 @@ function afterFeedback() {
    DEMON MODE
 ═══════════════════════════════════ */
 let comboCount = 0, comboResetT = null;
+let bonusKills = 0, bonusSpawnTimer = null, bonusEndTimer = null, bonusTickTimer = null;
+let bonusTimeLeft = 0;
+let bonusDemonSeq = 10000;
 
 const CHAIN_RADIUS = 68; // px，連鎖爆炸範圍
+const FINAL_BONUS_TIME = 12; // 秒
 
 // 惡魔種類抽選：波1全 normal，波2起 15% 金色
 function pickDemonType(wave) {
@@ -2012,7 +2016,7 @@ function startDemonLoop() {
       const el = d.el || (d.el = document.getElementById('dm' + d.id));
       if (el) el.style.transform = `translate3d(${d.x}px, ${d.y}px, 0)`;
     }
-    if (state === 'demon') demonAnimFrame = requestAnimationFrame(tick);
+    if (state === 'demon' || state === 'finalBonus') demonAnimFrame = requestAnimationFrame(tick);
   }
   demonAnimFrame = requestAnimationFrame(tick);
 }
@@ -2137,8 +2141,13 @@ function smash(d, el, chainDepth = 0) {
 
   if (chainDepth === 0) shakeDemon();
   el.remove();
-  renderDemonCount();
-  if (demons.every(d => !d.alive)) allCleared();
+  if (state === 'finalBonus') {
+    bonusKills++;
+    renderBonusCount();
+  } else {
+    renderDemonCount();
+    if (demons.every(d => !d.alive)) allCleared();
+  }
 }
 
 function shakeDemon() {
@@ -2204,6 +2213,177 @@ function showDemonResult(rem) {
       setTimeout(() => showBigPop(`+${pts}分\n${rem === 0 ? '完美清除!' : '加分挑戰!'}`, 'bonus'), 200);
     }
   }, rem > 0 ? 1300 : 1100);
+}
+
+/* ═══════════════════════════════════
+   FINAL BONUS ROUND：12秒無限刷惡魔
+═══════════════════════════════════ */
+function launchFinalBonus() {
+  show('demonScreen');
+  state = 'finalBonus';
+  comboCount = 0;
+  demonScoreDelta = 0;
+  bonusKills = 0;
+  bonusDemonSeq = 10000;
+  demons = [];
+
+  clearInterval(dmTimer);
+  cancelAnimationFrame(demonAnimFrame); demonAnimFrame = null;
+  clearInterval(bonusSpawnTimer); clearTimeout(bonusEndTimer); clearInterval(bonusTickTimer);
+
+  const container = document.getElementById('demonContainer');
+  container.innerHTML = '';
+
+  flash('rgba(255,120,20,0.6)', 400);
+
+  // HUD 文字改為最終加分模式
+  document.getElementById('dAlert').textContent = '🎯 最終加分挑戰！';
+  const sub = document.querySelector('#demonScreen .d-sub');
+  if (sub) sub.textContent = '不斷刷出，打越多分越高！';
+  const unit = document.querySelector('#demonScreen .d-unit');
+  if (unit) unit.textContent = '已擊殺';
+  document.getElementById('dBigNum').textContent = '0';
+
+  // 爆炸入場動畫
+  const exp = document.getElementById('demonExplosion');
+  const expTitle = exp.querySelector('.exp-title');
+  const expSub = exp.querySelector('.exp-sub');
+  if (expTitle) expTitle.textContent = '🎯 最終加分挑戰！';
+  if (expSub) expSub.textContent = `${FINAL_BONUS_TIME} 秒內盡量打！`;
+  exp.classList.remove('hidden');
+  exp.style.animation = 'none';
+  void exp.offsetWidth;
+  exp.style.animation = '';
+  setTimeout(() => exp.classList.add('hidden'), 1150);
+
+  // 計時 bar
+  bonusTimeLeft = FINAL_BONUS_TIME;
+  const bar = document.getElementById('dTbar');
+  bar.style.width = '100%';
+  bar.style.background = '#27ae60';
+  bonusTickTimer = setInterval(() => {
+    bonusTimeLeft--;
+    const pct = Math.max(0, bonusTimeLeft / FINAL_BONUS_TIME * 100);
+    bar.style.width = pct + '%';
+    bar.style.background = bonusTimeLeft > 4 ? '#27ae60' : bonusTimeLeft > 2 ? '#f39c12' : '#e74c3c';
+    if (bonusTimeLeft <= 2) flash('rgba(200,0,0,0.12)', 800);
+    if (bonusTimeLeft <= 0) clearInterval(bonusTickTimer);
+  }, 1000);
+
+  // 起始就先灑幾隻
+  setTimeout(() => {
+    if (state !== 'finalBonus') return;
+    for (let i = 0; i < 4; i++) spawnBonusDemon();
+    startDemonLoop();
+    // 持續刷新
+    bonusSpawnTimer = setInterval(() => {
+      if (state !== 'finalBonus') { clearInterval(bonusSpawnTimer); return; }
+      // 場上不要太擁擠：alive < 12 才生
+      const alive = demons.filter(d => d.alive).length;
+      if (alive < 12) spawnBonusDemon();
+      // 時間越少刷越快
+      if (alive < 6) spawnBonusDemon();
+    }, 380);
+  }, 700);
+
+  // 12 秒後結束
+  bonusEndTimer = setTimeout(endFinalBonus, FINAL_BONUS_TIME * 1000 + 700);
+}
+
+function spawnBonusDemon() {
+  const container = document.getElementById('demonContainer');
+  if (!container) return;
+  const W = window.innerWidth, H = window.innerHeight;
+  const marginX = W * 0.04;
+  const demonMinY = Math.max(Math.floor(H * 0.35), 220);
+  const maxY = H - 90;
+
+  const id = bonusDemonSeq++;
+  const type  = Math.random() < 0.22 ? 'gold' : 'normal';  // 加分回合金色率更高
+  const angle = Math.random() * Math.PI * 2;
+  const baseSpd = 2.8;  // 略快於一般波次平均
+  const spdMul  = type === 'gold' ? 1.9 : 1;
+  const spd     = baseSpd * spdMul;
+
+  // 從邊緣某處出現
+  const edge = Math.floor(Math.random() * 3); // 0:左 1:右 2:上
+  let x, y;
+  if (edge === 0) { x = marginX + 20; y = demonMinY + Math.random() * (maxY - demonMinY); }
+  else if (edge === 1) { x = W - marginX - 60; y = demonMinY + Math.random() * (maxY - demonMinY); }
+  else { x = marginX + Math.random() * (W - marginX * 2 - 60); y = demonMinY + 10; }
+
+  const d = { id, alive:true, ready:true, type, x, y,
+              vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd,
+              jitter: Math.random() * 100 };
+  demons.push(d);
+
+  const em = document.createElement('div');
+  em.className = 'demon dm-' + type;
+  const shape = 'dm-s' + (1 + Math.floor(Math.random() * 5));
+  const oneEye = Math.random() < 0.22 ? ' dm-one' : '';
+  if (type === 'gold') {
+    em.innerHTML = `<div class="dm-fig">
+      <div class="dm-leaf">⭐</div>
+      <div class="dm-body dm-gold ${shape}">
+        <div class="dm-eyes${oneEye}"><span></span><span></span></div>
+        <div class="dm-mouth"></div>
+      </div>
+    </div>`;
+  } else {
+    em.innerHTML = `<div class="dm-fig">
+      <div class="dm-leaf">${DM_LEAVES[Math.floor(Math.random() * DM_LEAVES.length)]}</div>
+      <div class="dm-body ${shape}" style="background:${DM_COLORS[Math.floor(Math.random() * DM_COLORS.length)]}">
+        <div class="dm-eyes${oneEye}"><span></span><span></span></div>
+        <div class="dm-mouth"></div>
+      </div>
+    </div>`;
+  }
+  const sz = type === 'gold' ? (24 + Math.floor(Math.random() * 8))
+           : (32 + Math.floor(Math.random() * 12));
+  em.style.fontSize = sz + 'px';
+  em.id = 'dm' + id;
+  em.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+
+  const shd = document.createElement('div');
+  shd.className = 'demon-shd';
+  em.appendChild(shd);
+
+  const onHit = () => smash(d, em);
+  em.addEventListener('click', onHit);
+  em.addEventListener('touchstart', e => { e.preventDefault(); onHit(); }, { passive:false });
+  container.appendChild(em);
+  d.el = em;
+}
+
+function renderBonusCount() {
+  const bigEl = document.getElementById('dBigNum');
+  if (!bigEl) return;
+  bigEl.textContent = bonusKills;
+  bigEl.classList.remove('smash');
+  void bigEl.offsetWidth;
+  bigEl.classList.add('smash');
+}
+
+function endFinalBonus() {
+  clearInterval(bonusSpawnTimer); bonusSpawnTimer = null;
+  clearInterval(bonusTickTimer); bonusTickTimer = null;
+  cancelAnimationFrame(demonAnimFrame); demonAnimFrame = null;
+
+  const pts = demonScoreDelta;
+  demons.forEach(d => {
+    d.alive = false;
+    if (d.el) d.el.remove();
+  });
+  demons = [];
+
+  document.getElementById('demonContainer').innerHTML =
+    `<div class="demon-result"><div class="dr-icon">🎯</div>
+     <div class="dr-text" style="color:#fff">最終加分挑戰！<br>擊殺 ${bonusKills} 隻，加 ${pts} 分！</div></div>`;
+
+  setTimeout(() => {
+    if (pts > 0) showBigPop(`+${pts}分\n最終挑戰！`, 'bonus');
+    setTimeout(() => showFinal(), 900);
+  }, 1200);
 }
 
 /* ═══════════════════════════════════
