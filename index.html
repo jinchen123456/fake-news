@@ -320,7 +320,6 @@ html, body { height:100dvh; }
 .demon > .dm-fig {
   animation:dWiggle .55s infinite alternate;
   transform-origin:center bottom;
-  filter:drop-shadow(0 3px 6px rgba(0,0,0,.28));
   will-change: transform;
 }
 
@@ -369,7 +368,7 @@ html, body { height:100dvh; }
 @keyframes dWiggle { from{transform:rotate(-7deg) scale(1)} to{transform:rotate(7deg) scale(1.1)} }
 .demon-shd {
   position:absolute; bottom:-6px; left:50%; transform:translateX(-50%);
-  width:65%; height:10px; background:rgba(0,0,0,.35); border-radius:50%; filter:blur(4px);
+  width:65%; height:10px; background:rgba(0,0,0,.22); border-radius:50%;
   animation:shdWave .55s infinite alternate;
 }
 @keyframes shdWave { from{transform:translateX(-50%) scaleX(.8)} to{transform:translateX(-50%) scaleX(1.08)} }
@@ -2075,7 +2074,9 @@ function smash(d, el, chainDepth = 0) {
     setTimeout(() => aoe.remove(), 480);
 
     // 四散火花
-    const dirs = [[-1,-1],[1,-1],[-1,1],[1,1],[0,-1],[0,1]];
+    const dirs = state === 'finalBonus'
+      ? [[-1,-1],[1,-1],[0,-1]]
+      : [[-1,-1],[1,-1],[-1,1],[1,1],[0,-1],[0,1]];
     dirs.forEach(([dx,dy], i) => {
       const sp = document.createElement('div');
       sp.className = 'spark';
@@ -2139,11 +2140,14 @@ function smash(d, el, chainDepth = 0) {
   c.appendChild(pop);
   setTimeout(() => pop.remove(), 900);
 
-  if (chainDepth === 0) shakeDemon();
+  if (chainDepth === 0 && state !== 'finalBonus') shakeDemon();
   el.remove();
   if (state === 'finalBonus') {
     bonusKills++;
     renderBonusCount();
+    // 移除死亡個體，避免陣列膨脹拖慢 tick / 連鎖掃描
+    const idx = demons.indexOf(d);
+    if (idx >= 0) demons.splice(idx, 1);
   } else {
     renderDemonCount();
     if (demons.every(d => !d.alive)) allCleared();
@@ -2273,17 +2277,14 @@ function launchFinalBonus() {
   // 起始就先灑幾隻
   setTimeout(() => {
     if (state !== 'finalBonus') return;
-    for (let i = 0; i < 4; i++) spawnBonusDemon();
+    for (let i = 0; i < 3; i++) spawnBonusDemon();
     startDemonLoop();
     // 持續刷新
     bonusSpawnTimer = setInterval(() => {
       if (state !== 'finalBonus') { clearInterval(bonusSpawnTimer); return; }
-      // 場上不要太擁擠：alive < 12 才生
-      const alive = demons.filter(d => d.alive).length;
-      if (alive < 12) spawnBonusDemon();
-      // 時間越少刷越快
-      if (alive < 6) spawnBonusDemon();
-    }, 380);
+      // 場上上限 8：夠密集但不會拖累畫面
+      if (demons.length < 8) spawnBonusDemon();
+    }, 450);
   }, 700);
 
   // 12 秒後結束
@@ -2359,9 +2360,6 @@ function renderBonusCount() {
   const bigEl = document.getElementById('dBigNum');
   if (!bigEl) return;
   bigEl.textContent = bonusKills;
-  bigEl.classList.remove('smash');
-  void bigEl.offsetWidth;
-  bigEl.classList.add('smash');
 }
 
 function endFinalBonus() {
