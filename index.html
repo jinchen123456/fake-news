@@ -102,7 +102,7 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Noto Sans TC
   display:flex; align-items:center; justify-content:center;
   font-size:13px; font-weight:900; margin-top:4px;
 }
-.step-txt { font-size:16px; line-height:2.1; color:var(--text-mid); white-space:nowrap; }
+.step-txt { font-size:16px; line-height:2.1; color:var(--text-mid); }
 
 .btn-start {
   background:var(--green); color:#fff; border:none;
@@ -631,6 +631,134 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Noto Sans TC
 .report-hl.warn { background:rgba(255,107,107,.1); }
 .report-hl.warn .report-hl-label { color:var(--red-d); }
 .report-hl.warn .report-hl-val { color:var(--red-d); }
+
+/* ─── BOMB / GOLD DEMONS ─────────────── */
+.dm-body.dm-bomb {
+  background: radial-gradient(circle at 34% 32%, #6b4a3e 0%, #22140f 78%);
+  box-shadow: 0 0 0 .04em rgba(255,90,30,.85) inset, 0 .06em 0 rgba(255,255,255,.2) inset;
+  animation: dmBombPulse .55s ease-in-out infinite alternate;
+}
+@keyframes dmBombPulse {
+  from { filter: drop-shadow(0 0 3px rgba(255,60,30,.4)); }
+  to   { filter: drop-shadow(0 0 10px rgba(255,60,30,.95)) brightness(1.15); }
+}
+.dm-body.dm-gold {
+  background: radial-gradient(circle at 34% 30%, #ffef7a 0%, #d69811 78%);
+  box-shadow: 0 0 .18em rgba(255,215,60,.7), 0 .06em 0 rgba(255,255,255,.45) inset;
+  animation: dmGoldGlow .9s ease-in-out infinite alternate;
+}
+@keyframes dmGoldGlow {
+  from { filter: drop-shadow(0 0 3px rgba(255,220,60,.55)); }
+  to   { filter: drop-shadow(0 0 12px rgba(255,220,60,1)) brightness(1.1); }
+}
+.splat-bomb { animation-duration:.7s; }
+
+/* HUD 提示 pill */
+.d-hint-row { display:flex; gap:6px; justify-content:center; margin-top:8px; flex-wrap:wrap; }
+.d-hint {
+  font-size:11.5px; font-weight:800; color:#fff;
+  background:rgba(255,255,255,.14); border-radius:999px; padding:3px 10px;
+  white-space:nowrap;
+}
+.d-hint.warn { background:rgba(255,60,50,.32); }
+.d-hint.gold { background:rgba(255,210,60,.28); color:#fff8d5; }
+
+/* 首頁提示標籤 */
+.step-hints { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+.step-hint {
+  font-size:11.5px; font-weight:800; padding:3px 10px; border-radius:999px;
+  background:var(--bg-hi); color:var(--green-d);
+}
+.step-hint.warn { background:rgba(255,107,107,.14); color:var(--red-d); }
+.step-hint.gold { background:rgba(255,180,60,.16); color:var(--orange-d); }
+
+/* ─── RESPONSIVE ─────────────────────── */
+#gameOver, #intro { overflow-y:auto; }
+
+@media (max-width: 380px) {
+  .intro-title { font-size:30px; letter-spacing:2px; }
+  .intro-sub { font-size:13px; letter-spacing:2px; margin:6px 0 22px; }
+  .steps-box { padding:14px 18px; max-width:none; margin-bottom:22px; }
+  .step-txt { font-size:14px; line-height:1.75; white-space:normal; }
+  .step-num { width:24px; height:24px; font-size:12px; }
+  .step-hint, .d-hint { font-size:11px; padding:2px 9px; }
+  .btn-start { padding:17px 46px; font-size:19px; letter-spacing:1px; }
+  .line-bubble { font-size:19px; padding:14px 16px; line-height:1.8; }
+  .line-av { width:42px; height:42px; font-size:22px; }
+  .btn-ans { font-size:19px; padding:17px 6px; }
+  .ans-zone { padding:12px 14px 18px; gap:10px; }
+  .game-hdr { padding:10px 14px 8px; }
+  .chat-bg { padding:12px 14px; }
+  .score-badge { font-size:13px; padding:5px 12px; min-width:52px; }
+  .q-counter, .gd-label { font-size:12px; }
+  .timer-zone { padding:6px 14px 0; }
+  .d-big { font-size:56px; }
+  .d-alert { font-size:18px; padding:6px 18px; }
+  .d-sub { font-size:12px; }
+  .fb-card { border-radius:22px; }
+  .fb-hdr { padding:22px 16px 18px; }
+  .fb-em { font-size:44px; }
+  .fb-title { font-size:19px; }
+  .fb-body { padding:18px 18px 20px; }
+  .fb-why { font-size:16px; line-height:1.75; }
+  .fb-tip { font-size:14px; padding:11px 14px; line-height:1.65; }
+  .trick-rule { font-size:13px; }
+  .go-icon { font-size:70px; }
+  .go-title { font-size:23px; }
+  .go-sub { font-size:14px; }
+  .go-stat { padding:12px 6px; }
+  .go-num { font-size:24px; }
+  .medal-em { font-size:70px; }
+  .medal-wrap { width:96px; height:96px; }
+  .final-rank { font-size:22px; letter-spacing:2px; }
+  .final-sub { font-size:14px; }
+  .fs { padding:12px 4px; }
+  .fs-num { font-size:20px; }
+  .fs-lbl { font-size:11px; }
+  .share-card { font-size:14px; padding:14px 16px; line-height:1.8; }
+  .btn-copy, .btn-lb-play, .btn-go-retry { padding:15px; font-size:17px; }
+  .btn-again, .btn-go-home, .btn-lb-home { padding:13px; font-size:15px; }
+  .name-input { padding:13px 16px; font-size:15px; }
+  .btn-lb-intro { padding:13px 14px; font-size:14px; }
+  .lb-title { font-size:22px; }
+}
+
+@media (max-width: 340px) {
+  .intro-title { font-size:26px; letter-spacing:1px; }
+  .btn-start { padding:15px 34px; font-size:18px; letter-spacing:1px; }
+  .line-bubble { font-size:17px; padding:12px 14px; }
+  .btn-ans { font-size:17px; padding:15px 4px; }
+  .fb-why { font-size:15px; }
+  .d-big { font-size:48px; }
+}
+
+@media (max-height: 720px) {
+  .shield-wrap { width:92px; height:92px; margin-bottom:10px; }
+  .mascot { width:72px; height:82px; }
+  .mascot-body { width:72px; height:64px; }
+  .mascot-leaf { font-size:28px; top:-16px; }
+  .intro-title { font-size:30px; }
+  .intro-sub { margin:4px 0 16px; }
+  .steps-box { padding:12px 20px; margin-bottom:18px; }
+  .step-row { padding:6px 0; }
+  .step-txt { font-size:14px; line-height:1.7; }
+  .name-row { margin-bottom:10px; }
+  .btn-start { padding:16px 42px; font-size:18px; }
+}
+
+@media (max-height: 600px) {
+  .shield-wrap { width:72px; height:72px; margin-bottom:6px; }
+  .mascot { width:58px; height:66px; }
+  .mascot-body { width:58px; height:52px; border-radius:46% 46% 48% 48%; }
+  .mascot-leaf { font-size:22px; top:-12px; }
+  .intro-title { font-size:26px; }
+  .intro-sub { margin:2px 0 10px; font-size:12px; }
+  .steps-box { padding:8px 16px; margin-bottom:12px; }
+  .step-row { padding:4px 0; }
+  .step-txt { font-size:13px; line-height:1.55; }
+  .btn-start { padding:14px 36px; font-size:17px; }
+  #intro { padding:16px 24px; }
+}
 </style>
 </head>
 <body>
@@ -657,7 +785,13 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Noto Sans TC
   <div class="intro-sub">謠言大作戰</div>
   <div class="steps-box">
     <div class="step-row"><div class="step-num">1</div><div class="step-txt">判斷訊息真假，答對 <b>+10分</b></div></div>
-    <div class="step-row"><div class="step-num">2</div><div class="step-txt">連對2題 ⚡ 打惡魔賺加分</div></div>
+    <div class="step-row"><div class="step-num">2</div><div class="step-txt">
+      連對2題 ⚡ 打惡魔賺加分
+      <div class="step-hints">
+        <span class="step-hint gold">⭐ 金色 +8</span>
+        <span class="step-hint warn">💣 炸彈別碰</span>
+      </div>
+    </div></div>
     <div class="step-row"><div class="step-num">3</div><div class="step-txt">答錯 <b>-10分</b>，錯3次或歸零結束</div></div>
   </div>
   <div class="name-row">
@@ -724,7 +858,11 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Noto Sans TC
   <div class="d-vignette"></div>
   <div class="d-hud">
     <div class="d-alert" id="dAlert">⚡ 加分挑戰！</div>
-    <div class="d-sub">點擊惡魔 +2分，連鎖爆炸賺更多！👊</div>
+    <div class="d-sub">敲惡魔 +2 分，連鎖爆炸賺更多！</div>
+    <div class="d-hint-row">
+      <span class="d-hint gold">⭐ 金色 +8</span>
+      <span class="d-hint warn">💣 別碰！-5 -2秒</span>
+    </div>
     <div class="d-counter">
       <div class="d-big" id="dBigNum">0</div>
       <div class="d-unit">隻謠言惡魔</div>
@@ -737,7 +875,7 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Noto Sans TC
     <div class="exp-ring exp-ring-2"></div>
     <div class="exp-ring exp-ring-3"></div>
     <div class="exp-title">⚡ 加分挑戰！</div>
-    <div class="exp-sub">連答2題獎勵 — 打惡魔賺分數！</div>
+    <div class="exp-sub">⭐ 金色 +8｜💣 別碰 -5 -2秒</div>
   </div>
   <div id="demonContainer"></div>
 </div>
@@ -1409,7 +1547,7 @@ const QS = [
 ═══════════════════════════════════ */
 const TOTAL    = 10;  // 每局出題數（從100題中隨機選取）
 const Q_TIME   = 9;
-const DMN_TIME = 15;
+const DMN_TIME = 13;
 const DM_COLORS = [
   'linear-gradient(180deg,#c07be0 0%,#8a4ab8 100%)',
   'linear-gradient(180deg,#f3705f 0%,#c83428 100%)',
@@ -1702,7 +1840,16 @@ function afterFeedback() {
 ═══════════════════════════════════ */
 let comboCount = 0, comboResetT = null;
 
-const CHAIN_RADIUS = 95; // px，連鎖爆炸範圍
+const CHAIN_RADIUS = 72; // px，連鎖爆炸範圍
+
+// 惡魔種類抽選：波1全 normal，波2起 15% 炸彈、12% 金色
+function pickDemonType(wave) {
+  if (wave < 2) return 'normal';
+  const r = Math.random();
+  if (r < 0.15) return 'bomb';
+  if (r < 0.27) return 'gold';
+  return 'normal';
+}
 
 function getDemonCount() {
   // 有連鎖機制，密度比純點擊版適當降低，保留群聚空間讓連鎖發生
@@ -1750,10 +1897,13 @@ function launchDemons() {
   const cx = W / 2 - 28, cy = H * 0.72;
 
   for (let i = 0; i < count; i++) {
+    const type  = pickDemonType(demonWave);
     const angle = Math.random() * Math.PI * 2;
-    const spd   = getDemonPxPerFrame();
+    const baseSpd = getDemonPxPerFrame();
+    const spdMul  = type === 'gold' ? 1.75 : type === 'bomb' ? 0.85 : 1;
+    const spd     = baseSpd * spdMul;
     const d = {
-      id:i, alive:true, ready:false,
+      id:i, alive:true, ready:false, type,
       x: cx, y: cy,
       vx: Math.cos(angle) * spd,
       vy: Math.sin(angle) * spd,
@@ -1761,17 +1911,38 @@ function launchDemons() {
     demons.push(d);
 
     const em = document.createElement('div');
-    em.className = 'demon demon-init';
+    em.className = 'demon demon-init dm-' + type;
     const shape = 'dm-s' + (1 + Math.floor(Math.random() * 5));
     const oneEye = Math.random() < 0.22 ? ' dm-one' : '';
-    em.innerHTML = `<div class="dm-fig">
-      <div class="dm-leaf">${DM_LEAVES[Math.floor(Math.random() * DM_LEAVES.length)]}</div>
-      <div class="dm-body ${shape}" style="background:${DM_COLORS[Math.floor(Math.random() * DM_COLORS.length)]}">
-        <div class="dm-eyes${oneEye}"><span></span><span></span></div>
-        <div class="dm-mouth"></div>
-      </div>
-    </div>`;
-    const sz = 46 + Math.floor(Math.random() * 16);
+    if (type === 'bomb') {
+      em.innerHTML = `<div class="dm-fig">
+        <div class="dm-leaf">💣</div>
+        <div class="dm-body dm-bomb ${shape}">
+          <div class="dm-eyes dm-one"><span></span><span></span></div>
+          <div class="dm-mouth"></div>
+        </div>
+      </div>`;
+    } else if (type === 'gold') {
+      em.innerHTML = `<div class="dm-fig">
+        <div class="dm-leaf">⭐</div>
+        <div class="dm-body dm-gold ${shape}">
+          <div class="dm-eyes${oneEye}"><span></span><span></span></div>
+          <div class="dm-mouth"></div>
+        </div>
+      </div>`;
+    } else {
+      em.innerHTML = `<div class="dm-fig">
+        <div class="dm-leaf">${DM_LEAVES[Math.floor(Math.random() * DM_LEAVES.length)]}</div>
+        <div class="dm-body ${shape}" style="background:${DM_COLORS[Math.floor(Math.random() * DM_COLORS.length)]}">
+          <div class="dm-eyes${oneEye}"><span></span><span></span></div>
+          <div class="dm-mouth"></div>
+        </div>
+      </div>`;
+    }
+    // 金色較小、炸彈較大易辨識、普通中等
+    const sz = type === 'gold' ? (32 + Math.floor(Math.random() * 10))
+             : type === 'bomb' ? (52 + Math.floor(Math.random() * 10))
+             : (40 + Math.floor(Math.random() * 14));
     em.style.fontSize = sz + 'px';
     em.id = 'dm' + i;
     em.style.left = cx + 'px';
@@ -1829,12 +2000,54 @@ function startDemonLoop() {
   demonAnimFrame = requestAnimationFrame(tick);
 }
 
+function smashBomb(d, el) {
+  d.alive = false;
+  const x = d.x, y = d.y;
+  const c = document.getElementById('demonContainer');
+  const penalty = 5, timePenalty = 2;
+  score = Math.max(0, score - penalty);
+  demonScoreDelta -= penalty;
+  dmTimeLeft = Math.max(0, dmTimeLeft - timePenalty);
+  renderDTbar(); updateScore();
+  if (navigator.vibrate) navigator.vibrate([50,60,50,60,50]);
+
+  const splat = document.createElement('div');
+  splat.className = 'splat splat-bomb';
+  splat.textContent = '💥';
+  splat.style.left = x + 'px'; splat.style.top = y + 'px';
+  splat.style.fontSize = '92px';
+  c.appendChild(splat);
+  setTimeout(() => splat.remove(), 700);
+
+  const warn = document.createElement('div');
+  warn.className = 'combo-pop';
+  warn.style.color = '#ff3b1e';
+  warn.style.fontSize = '20px';
+  warn.textContent = `💣 -${penalty}  -${timePenalty}秒！`;
+  warn.style.left = (x - 40) + 'px'; warn.style.top = (y - 20) + 'px';
+  c.appendChild(warn);
+  setTimeout(() => warn.remove(), 1000);
+
+  showToast(`💣 誤觸炸彈 -${penalty}`, 'life');
+  flash('rgba(255,0,0,0.4)', 500);
+  shakeDemon();
+  el.remove();
+  renderDemonCount();
+  if (demons.filter(x => x.type !== 'bomb').every(d => !d.alive)) allCleared();
+}
+
 function smash(d, el, chainDepth = 0) {
   if (!d.alive) return;
+  // 炸彈：直接點擊觸發懲罰；連鎖忽略
+  if (d.type === 'bomb') {
+    if (chainDepth > 0) return;
+    return smashBomb(d, el);
+  }
   d.alive = false;
   demKilled++;
-  score += 2; demonScoreDelta += 2; updateScore();
-  if (navigator.vibrate) navigator.vibrate(25);
+  const basePts = d.type === 'gold' ? 8 : 2;
+  score += basePts; demonScoreDelta += basePts; updateScore();
+  if (navigator.vibrate) navigator.vibrate(d.type === 'gold' ? [20,30,20] : 25);
 
   const x = d.x ?? parseFloat(el.style.left);
   const y = d.y ?? parseFloat(el.style.top);
@@ -1895,10 +2108,11 @@ function smash(d, el, chainDepth = 0) {
       setTimeout(() => sp.remove(), 620);
     });
 
-    // 掃描連鎖目標
+    // 掃描連鎖目標（炸彈不會被連鎖引爆）
     let chainHits = 0;
     demons.forEach(other => {
       if (!other.alive || other.id === d.id) return;
+      if (other.type === 'bomb') return;
       const dx = other.x - x, dy = other.y - y;
       if (Math.sqrt(dx*dx + dy*dy) < CHAIN_RADIUS) {
         chainHits++;
@@ -1938,8 +2152,10 @@ function smash(d, el, chainDepth = 0) {
     pop.textContent = `🔥 ×${comboCount} COMBO!`; pop.style.fontSize='20px'; pop.style.color='#ff8800';
   } else if (comboCount >= 3) {
     pop.textContent = `✨ ×${comboCount} COMBO`; pop.style.fontSize='17px'; pop.style.color='#ffe040';
+  } else if (d.type === 'gold') {
+    pop.textContent = '⭐ +8!'; pop.style.fontSize='20px'; pop.style.color='#ffd45c';
   } else {
-    pop.textContent = '+5'; pop.style.fontSize='16px'; pop.style.color='#ffe040';
+    pop.textContent = '+2'; pop.style.fontSize='16px'; pop.style.color='#ffe040';
   }
   c.appendChild(pop);
   setTimeout(() => pop.remove(), 900);
@@ -1947,7 +2163,7 @@ function smash(d, el, chainDepth = 0) {
   if (chainDepth === 0) shakeDemon();
   el.remove();
   renderDemonCount();
-  if (demons.every(d => !d.alive)) allCleared();
+  if (demons.filter(x => x.type !== 'bomb').every(d => !d.alive)) allCleared();
 }
 
 function shakeDemon() {
@@ -1959,7 +2175,7 @@ function shakeDemon() {
 }
 
 function renderDemonCount() {
-  const n = demons.filter(d => d.alive).length;
+  const n = demons.filter(d => d.alive && d.type !== 'bomb').length;
   const bigEl = document.getElementById('dBigNum');
   bigEl.textContent = n;
   bigEl.classList.remove('smash');
@@ -1989,7 +2205,8 @@ function renderDTbar() {
 
 function demonExpired() {
   cancelAnimationFrame(demonAnimFrame); demonAnimFrame = null;
-  const rem = demons.filter(d => d.alive).length;
+  // 剩餘只計非炸彈
+  const rem = demons.filter(d => d.alive && d.type !== 'bomb').length;
   demons.forEach(d => { d.alive=false; const el=document.getElementById('dm'+d.id); if(el) el.remove(); });
   showDemonResult(rem);
 }
