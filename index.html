@@ -1874,8 +1874,8 @@ function launchDemons() {
   container.innerHTML = '';
 
   const W = window.innerWidth, H = window.innerHeight;
-  const marginX = W * 0.12;
-  const demonMinY = Math.floor(H * 0.52);  // 只在下半部
+  const marginX = W * 0.04;
+  const demonMinY = Math.max(Math.floor(H * 0.35), 220);  // HUD 之下即可，範圍更大
   const cx = W / 2 - 28, cy = H * 0.72;
 
   for (let i = 0; i < count; i++) {
@@ -1936,10 +1936,11 @@ function launchDemons() {
       if (!d.alive) return;
       em.classList.remove('demon-init');
       d.x = marginX + Math.random() * (W - marginX * 2 - 60);
-      d.y = demonMinY + Math.random() * (H - demonMinY - 110);
+      d.y = demonMinY + Math.random() * (H - demonMinY - 90);
       em.style.left = d.x + 'px';
       em.style.top  = d.y + 'px';
       d.ready = true;
+      d.jitter = Math.random() * 100;  // 各自相位，讓擾動不同步
     }, delay);
   }
 
@@ -1952,19 +1953,33 @@ function launchDemons() {
 
 function startDemonLoop() {
   const W = window.innerWidth, H = window.innerHeight;
-  const minX = W * 0.04, maxX = W - W * 0.04 - 60;
-  const minY = Math.floor(H * 0.52), maxY = H - 110;
+  const minX = W * 0.02, maxX = W - W * 0.02 - 60;
+  const minY = Math.max(Math.floor(H * 0.35), 220), maxY = H - 90;
 
+  let frame = 0;
   function tick() {
+    frame++;
     demons.forEach(d => {
       if (!d.alive || !d.ready) return;
-      d.x += d.vx;
-      d.y += d.vy;
-      // 碰牆反彈
-      if (d.x < minX) { d.x = minX; d.vx = Math.abs(d.vx); }
-      if (d.x > maxX) { d.x = maxX; d.vx = -Math.abs(d.vx); }
-      if (d.y < minY) { d.y = minY; d.vy = Math.abs(d.vy); }
-      if (d.y > maxY) { d.y = maxY; d.vy = -Math.abs(d.vy); }
+      // 每隻各自的相位 → 用 sin 做垂直於當前方向的擺盪
+      const phase = (frame + (d.jitter || 0)) * (d.type === 'gold' ? 0.11 : 0.07);
+      const wob = Math.sin(phase) * (d.type === 'gold' ? 0.42 : 0.28);
+      const nx = -d.vy, ny = d.vx;
+      const nl = Math.hypot(nx, ny) || 1;
+      d.x += d.vx + (nx / nl) * wob;
+      d.y += d.vy + (ny / nl) * wob;
+      // 偶發角度擾動（約每秒 1 次）：保持速度、隨機轉向
+      if (Math.random() < 0.018) {
+        const spd = Math.hypot(d.vx, d.vy);
+        const ang = Math.atan2(d.vy, d.vx) + (Math.random() - 0.5) * 1.6;
+        d.vx = Math.cos(ang) * spd;
+        d.vy = Math.sin(ang) * spd;
+      }
+      // 碰牆反彈：加點隨機角度避免走直線
+      if (d.x < minX) { d.x = minX; d.vx = Math.abs(d.vx); d.vy += (Math.random() - 0.5) * 0.4; }
+      if (d.x > maxX) { d.x = maxX; d.vx = -Math.abs(d.vx); d.vy += (Math.random() - 0.5) * 0.4; }
+      if (d.y < minY) { d.y = minY; d.vy = Math.abs(d.vy); d.vx += (Math.random() - 0.5) * 0.4; }
+      if (d.y > maxY) { d.y = maxY; d.vy = -Math.abs(d.vy); d.vx += (Math.random() - 0.5) * 0.4; }
       const el = document.getElementById('dm' + d.id);
       if (el) { el.style.left = d.x + 'px'; el.style.top = d.y + 'px'; }
     });
