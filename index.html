@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>真相守護師 — 增強防騙免疫力</title>
+<title>真相守護師 — 不再被怪訊息迷惑</title>
 <style>
 :root {
   /* 極簡可愛系 — 大量留白、扁平色塊、柔和陰影 */
@@ -529,6 +529,21 @@ html, body { height:100dvh; }
 .btn-copy:active { transform:scale(.96); }
 .btn-again { background:var(--bg-card); color:var(--text-mid); border:none; border-radius:999px; padding:15px; font-size:16px; font-weight:700; cursor:pointer; display:block; width:100%; box-shadow:0 2px 10px var(--shadow); }
 
+/* 結束畫面 CTA：連到天下雜誌 */
+.btn-cta-cw {
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  background:linear-gradient(180deg, var(--brand) 0%, var(--brand-d) 100%);
+  color:#fff; text-decoration:none;
+  border:none; border-radius:999px;
+  padding:18px 20px; font-size:18px; font-weight:900; line-height:1.3;
+  width:100%; margin-bottom:12px;
+  box-shadow:0 6px 20px rgba(215,25,32,.35);
+  transition:transform .12s;
+  text-align:center;
+}
+.btn-cta-cw:active { transform:scale(.97); }
+.btn-cta-cw .cta-mark { font-size:15px; opacity:.9; font-weight:700; letter-spacing:1px; }
+
 /* flash overlay */
 #flashOverlay { position:fixed; inset:0; pointer-events:none; z-index:100; opacity:0; }
 
@@ -670,6 +685,23 @@ html, body { height:100dvh; }
   from { filter: drop-shadow(0 0 3px rgba(255,220,60,.55)); }
   to   { filter: drop-shadow(0 0 12px rgba(255,220,60,1)) brightness(1.1); }
 }
+/* ─── TOUGH DEMON（要打兩下）─────────── */
+.dm-body.dm-tough {
+  background: radial-gradient(circle at 34% 28%, #6d5da8 0%, #2f2450 82%);
+  box-shadow: 0 0 0 .06em rgba(180,170,220,.55) inset, 0 .06em 0 rgba(255,255,255,.22) inset;
+  position:relative;
+}
+.dm-body.dm-tough::before {
+  content:''; position:absolute; left:0; right:0; top:38%;
+  height:.14em; background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.35) 50%, rgba(255,255,255,0) 100%);
+}
+.demon.dm-hurt > .dm-fig { animation: dmHurt .18s ease-out; }
+@keyframes dmHurt {
+  0%   { transform:scale(1)   translate(0,0); }
+  30%  { transform:scale(1.14) translate(2px,-2px); filter:brightness(1.6) saturate(.4); }
+  60%  { transform:scale(.96) translate(-2px,1px); }
+  100% { transform:scale(1)   translate(0,0); }
+}
 /* HUD 提示 pill */
 .d-hint-row { display:flex; gap:6px; justify-content:center; margin-top:8px; flex-wrap:wrap; }
 .d-hint {
@@ -801,15 +833,10 @@ html, body { height:100dvh; }
     </div>
   </div>
   <div class="intro-title">真相守護師</div>
-  <div class="intro-sub">增強防騙免疫力</div>
+  <div class="intro-sub">不再被怪訊息迷惑</div>
   <div class="steps-box">
     <div class="step-row"><div class="step-num">1</div><div class="step-txt">判斷訊息真假，答對 <b>+10分</b></div></div>
-    <div class="step-row"><div class="step-num">2</div><div class="step-txt">
-      連對2題 ⚡ 打惡魔賺加分
-      <div class="step-hints">
-        <span class="step-hint gold">⭐ 金色惡魔 +8 分</span>
-      </div>
-    </div></div>
+    <div class="step-row"><div class="step-num">2</div><div class="step-txt">連對2題 ⚡ 打惡魔賺加分</div></div>
     <div class="step-row"><div class="step-num">3</div><div class="step-txt">答錯 <b>-10分</b>，錯3次或歸零結束</div></div>
   </div>
   <div class="name-row">
@@ -878,10 +905,7 @@ html, body { height:100dvh; }
   <div class="d-vignette"></div>
   <div class="d-hud">
     <div class="d-alert" id="dAlert">⚡ 加分挑戰！</div>
-    <div class="d-sub">敲惡魔 +2 分，連鎖爆炸賺更多！</div>
-    <div class="d-hint-row">
-      <span class="d-hint gold">⭐ 金色 +8 分</span>
-    </div>
+    <div class="d-sub">敲惡魔加分，連鎖爆炸賺更多！</div>
     <div class="d-counter">
       <div class="d-big" id="dBigNum">0</div>
       <div class="d-unit">隻謠言惡魔</div>
@@ -894,7 +918,7 @@ html, body { height:100dvh; }
     <div class="exp-ring exp-ring-2"></div>
     <div class="exp-ring exp-ring-3"></div>
     <div class="exp-title">⚡ 加分挑戰！</div>
-    <div class="exp-sub">⭐ 金色惡魔 +8 分！連鎖爆炸賺更多</div>
+    <div class="exp-sub">敲惡魔加分，連鎖爆炸賺更多！</div>
   </div>
   <div id="demonContainer"></div>
 </div>
@@ -909,6 +933,7 @@ html, body { height:100dvh; }
     <div class="go-stat"><div class="go-num" id="goScore">0</div><div class="go-lbl">最終得分</div></div>
     <div class="go-stat"><div class="go-num" id="goDemons">0</div><div class="go-lbl">打倒惡魔</div></div>
   </div>
+  <a class="btn-cta-cw" href="https://www.cw.com.tw/payment" target="_blank" rel="noopener">📰 負責任的新聞　立刻觀看天下雜誌</a>
   <button class="btn-go-retry" onclick="restart()">🔄 重新守護</button>
   <button class="btn-go-home" onclick="restart()">回到首頁</button>
 </div>
@@ -929,6 +954,7 @@ html, body { height:100dvh; }
   <div class="share-card" id="shareCard"></div>
   <button class="btn-copy" onclick="copyShare()">📋 複製分享給家人</button>
   <button class="btn-copy" style="background:var(--orange-d);margin-bottom:12px" onclick="showLeaderboard(true)">🏆 上榜 / 看排行榜</button>
+  <a class="btn-cta-cw" href="https://www.cw.com.tw/payment" target="_blank" rel="noopener">📰 負責任的新聞　立刻觀看天下雜誌</a>
   <button class="btn-again" onclick="restart()">再玩一次</button>
 </div>
 
@@ -2148,10 +2174,13 @@ let bonusDemonSeq = 10000;
 const CHAIN_RADIUS = 68; // px，連鎖爆炸範圍
 const FINAL_BONUS_TIME = 12; // 秒
 
-// 惡魔種類抽選：波1全 normal，波2起 15% 金色
+// 惡魔種類抽選：波1全 normal，波2起 15% 金色 + 18% 硬皮（要打兩下）
 function pickDemonType(wave) {
   if (wave < 2) return 'normal';
-  return Math.random() < 0.15 ? 'gold' : 'normal';
+  const r = Math.random();
+  if (r < 0.15) return 'gold';
+  if (r < 0.33) return 'tough';
+  return 'normal';
 }
 
 function getDemonCount() {
@@ -2168,6 +2197,10 @@ function getDemonPxPerFrame() {
   const wave = Math.min(demonWave, 6);
   return 1.2 + wave * 0.5;  // 波1:1.7 → 波6:4.2 px/frame
 }
+
+const IS_DESKTOP = (typeof matchMedia === 'function')
+  && matchMedia('(hover:hover) and (pointer:fine)').matches
+  && window.innerWidth >= 900;
 
 function launchDemons() {
   show('demonScreen');
@@ -2202,11 +2235,12 @@ function launchDemons() {
   for (let i = 0; i < count; i++) {
     const type  = pickDemonType(demonWave);
     const angle = Math.random() * Math.PI * 2;
-    const baseSpd = getDemonPxPerFrame();
-    const spdMul  = type === 'gold' ? 2.0 : 1;
+    const baseSpd = getDemonPxPerFrame() * (IS_DESKTOP ? 0.75 : 1);
+    const spdMul  = type === 'gold' ? 2.0 : type === 'tough' ? 0.72 : 1;
     const spd     = baseSpd * spdMul;
     const d = {
       id:i, alive:true, ready:false, type,
+      hp: type === 'tough' ? 2 : 1,
       x: cx, y: cy,
       vx: Math.cos(angle) * spd,
       vy: Math.sin(angle) * spd,
@@ -2225,6 +2259,14 @@ function launchDemons() {
           <div class="dm-mouth"></div>
         </div>
       </div>`;
+    } else if (type === 'tough') {
+      em.innerHTML = `<div class="dm-fig">
+        <div class="dm-leaf">🛡️</div>
+        <div class="dm-body dm-tough ${shape}">
+          <div class="dm-eyes${oneEye}"><span></span><span></span></div>
+          <div class="dm-mouth"></div>
+        </div>
+      </div>`;
     } else {
       em.innerHTML = `<div class="dm-fig">
         <div class="dm-leaf">${DM_LEAVES[Math.floor(Math.random() * DM_LEAVES.length)]}</div>
@@ -2234,9 +2276,11 @@ function launchDemons() {
         </div>
       </div>`;
     }
-    // 金色更小、普通略縮
-    const sz = type === 'gold' ? (24 + Math.floor(Math.random() * 8))
-             : (32 + Math.floor(Math.random() * 12));
+    // 金色更小、硬皮較大、普通略縮；桌機統一放大
+    let sz = type === 'gold'  ? (24 + Math.floor(Math.random() * 8))
+           : type === 'tough' ? (38 + Math.floor(Math.random() * 10))
+           : (32 + Math.floor(Math.random() * 12));
+    if (IS_DESKTOP) sz = Math.round(sz * 1.4);
     em.style.fontSize = sz + 'px';
     em.id = 'dm' + i;
     em.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
@@ -2311,11 +2355,38 @@ function startDemonLoop() {
 
 function smash(d, el, chainDepth = 0) {
   if (!d.alive) return;
+  // 硬皮惡魔：第一下只受傷不死（連鎖爆炸能直接擊破）
+  if (d.hp && d.hp > 1 && chainDepth === 0) {
+    d.hp--;
+    if (navigator.vibrate) navigator.vibrate(15);
+    el.classList.remove('dm-hurt');
+    void el.offsetWidth;
+    el.classList.add('dm-hurt');
+    setTimeout(() => el.classList.remove('dm-hurt'), 200);
+    // 受傷微光圈
+    const c = document.getElementById('demonContainer');
+    if (c) {
+      const ring = document.createElement('div');
+      ring.className = 'hit-ring';
+      ring.style.left = (d.x + 24) + 'px';
+      ring.style.top  = (d.y + 24) + 'px';
+      ring.style.borderColor = 'rgba(200,180,255,.9)';
+      c.appendChild(ring);
+      setTimeout(() => ring.remove(), 420);
+      const pop = document.createElement('div');
+      pop.className = 'combo-pop';
+      pop.style.left = (d.x - 4) + 'px'; pop.style.top = (d.y - 4) + 'px';
+      pop.textContent = '再一下！'; pop.style.fontSize='13px'; pop.style.color='#c9b8ff';
+      c.appendChild(pop);
+      setTimeout(() => pop.remove(), 700);
+    }
+    return;
+  }
   d.alive = false;
   demKilled++;
-  const basePts = d.type === 'gold' ? 8 : 2;
+  const basePts = d.type === 'gold' ? 8 : d.type === 'tough' ? 5 : 2;
   score += basePts; demonScoreDelta += basePts; updateScore();
-  if (navigator.vibrate) navigator.vibrate(d.type === 'gold' ? [20,30,20] : 25);
+  if (navigator.vibrate) navigator.vibrate(d.type === 'gold' ? [20,30,20] : d.type === 'tough' ? [25,20,25] : 25);
 
   const x = d.x;
   const y = d.y;
@@ -2423,6 +2494,8 @@ function smash(d, el, chainDepth = 0) {
     pop.textContent = `✨ ×${comboCount} COMBO`; pop.style.fontSize='17px'; pop.style.color='#ffe040';
   } else if (d.type === 'gold') {
     pop.textContent = '⭐ +8!'; pop.style.fontSize='20px'; pop.style.color='#ffd45c';
+  } else if (d.type === 'tough') {
+    pop.textContent = '🛡️ +5!'; pop.style.fontSize='18px'; pop.style.color='#c9b8ff';
   } else {
     pop.textContent = '+2'; pop.style.fontSize='16px'; pop.style.color='#ffe040';
   }
@@ -2589,10 +2662,12 @@ function spawnBonusDemon() {
   const maxY = H - 90;
 
   const id = bonusDemonSeq++;
-  const type  = Math.random() < 0.22 ? 'gold' : 'normal';  // 加分回合金色率更高
+  // 加分回合：金色率更高，另加一定比例硬皮（要打兩下）
+  const r = Math.random();
+  const type = r < 0.22 ? 'gold' : r < 0.42 ? 'tough' : 'normal';
   const angle = Math.random() * Math.PI * 2;
-  const baseSpd = 2.8;  // 略快於一般波次平均
-  const spdMul  = type === 'gold' ? 1.9 : 1;
+  const baseSpd = 2.8 * (IS_DESKTOP ? 0.75 : 1);
+  const spdMul  = type === 'gold' ? 1.9 : type === 'tough' ? 0.7 : 1;
   const spd     = baseSpd * spdMul;
 
   // 從邊緣某處出現
@@ -2602,7 +2677,9 @@ function spawnBonusDemon() {
   else if (edge === 1) { x = W - marginX - 60; y = demonMinY + Math.random() * (maxY - demonMinY); }
   else { x = marginX + Math.random() * (W - marginX * 2 - 60); y = demonMinY + 10; }
 
-  const d = { id, alive:true, ready:true, type, x, y,
+  const d = { id, alive:true, ready:true, type,
+              hp: type === 'tough' ? 2 : 1,
+              x, y,
               vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd,
               jitter: Math.random() * 100 };
   demons.push(d);
@@ -2619,6 +2696,14 @@ function spawnBonusDemon() {
         <div class="dm-mouth"></div>
       </div>
     </div>`;
+  } else if (type === 'tough') {
+    em.innerHTML = `<div class="dm-fig">
+      <div class="dm-leaf">🛡️</div>
+      <div class="dm-body dm-tough ${shape}">
+        <div class="dm-eyes${oneEye}"><span></span><span></span></div>
+        <div class="dm-mouth"></div>
+      </div>
+    </div>`;
   } else {
     em.innerHTML = `<div class="dm-fig">
       <div class="dm-leaf">${DM_LEAVES[Math.floor(Math.random() * DM_LEAVES.length)]}</div>
@@ -2628,8 +2713,10 @@ function spawnBonusDemon() {
       </div>
     </div>`;
   }
-  const sz = type === 'gold' ? (24 + Math.floor(Math.random() * 8))
-           : (32 + Math.floor(Math.random() * 12));
+  let sz = type === 'gold'  ? (24 + Math.floor(Math.random() * 8))
+         : type === 'tough' ? (38 + Math.floor(Math.random() * 10))
+         : (32 + Math.floor(Math.random() * 12));
+  if (IS_DESKTOP) sz = Math.round(sz * 1.4);
   em.style.fontSize = sz + 'px';
   em.id = 'dm' + id;
   em.style.transform = `translate3d(${x}px, ${y}px, 0)`;
@@ -2858,7 +2945,7 @@ function showFinal() {
     `🔨 擊退了 ${demKilled} 隻謠言惡魔\n\n` +
     `⏱️ 一題只有9秒，答錯3次直接出局，\n` +
     `很多題連我都差點被騙到...\n\n` +
-    `👉 玩「真相守護師：增強防騙免疫力」，看你能撐到第幾題！`;
+    `👉 玩「真相守護師：不再被怪訊息迷惑」，看你能撐到第幾題！`;
   document.getElementById('shareCard').textContent = shareText;
   pendingLbSave = { score, acc, correct, rank };
   show('final');
