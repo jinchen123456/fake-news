@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>真相守護師 — 不再被怪訊息迷惑</title>
+<title>真的假的啦 — 不再被怪訊息迷惑</title>
 <style>
 :root {
   /* 極簡可愛系 — 大量留白、扁平色塊、柔和陰影 */
@@ -832,7 +832,7 @@ html, body { height:100dvh; }
       </div>
     </div>
   </div>
-  <div class="intro-title">真相守護師</div>
+  <div class="intro-title">真的假的啦</div>
   <div class="intro-sub">不再被怪訊息迷惑</div>
   <div class="steps-box">
     <div class="step-row"><div class="step-num">1</div><div class="step-txt">判斷訊息真假，答對 <b>+10分</b></div></div>
@@ -960,8 +960,8 @@ html, body { height:100dvh; }
 
 <!-- ══ LEADERBOARD ═════════════════════════════════════════ -->
 <div class="screen hidden" id="leaderboard">
-  <div class="lb-title">🏆 真相守護師排行榜</div>
-  <div class="lb-sub" id="lbSub">看看誰是頂尖真相守護師！</div>
+  <div class="lb-title">🏆 真的假的啦 排行榜</div>
+  <div class="lb-sub" id="lbSub">看看誰是識假訊息最強高手！</div>
   <div class="lb-list" id="lbList"></div>
   <button class="btn-lb-play" onclick="restart()">🔄 再玩一次挑戰第一</button>
   <button class="btn-lb-home" onclick="show('intro')">← 回首頁</button>
@@ -2874,10 +2874,10 @@ function showFinal() {
   clearInterval(qTimer); clearInterval(dmTimer);
   const acc = Math.round((correct/TOTAL)*100);
   let medal, rank, stars;
-  if      (score >= 120){ medal='🏆'; rank='頂尖真相守護師'; stars=3; }
-  else if (score >= 95 ){ medal='🥇'; rank='資深真相守護師'; stars=3; }
-  else if (score >= 70 ){ medal='🛡️'; rank='中階真相守護師'; stars=2; }
-  else if (score >= 45 ){ medal='⚔️'; rank='見習守護師';    stars=1; }
+  if      (score >= 120){ medal='🏆'; rank='頂尖真假神探';   stars=3; }
+  else if (score >= 95 ){ medal='🥇'; rank='資深真假偵探';   stars=3; }
+  else if (score >= 70 ){ medal='🛡️'; rank='中階識假達人';   stars=2; }
+  else if (score >= 45 ){ medal='⚔️'; rank='見習識假達人';   stars=1; }
   else                  { medal='🔰'; rank='新手學徒';       stars=0; }
 
   document.getElementById('finalMedal').textContent = medal;
@@ -2945,7 +2945,7 @@ function showFinal() {
     `🔨 擊退了 ${demKilled} 隻謠言惡魔\n\n` +
     `⏱️ 一題只有9秒，答錯3次直接出局，\n` +
     `很多題連我都差點被騙到...\n\n` +
-    `👉 玩「真相守護師：不再被怪訊息迷惑」，看你能撐到第幾題！`;
+    `👉 玩「真的假的啦：不再被怪訊息迷惑」，看你能撐到第幾題！`;
   document.getElementById('shareCard').textContent = shareText;
   pendingLbSave = { score, acc, correct, rank };
   show('final');
