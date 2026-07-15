@@ -935,7 +935,7 @@ html, body { height:100dvh; }
     <div class="go-stat"><div class="go-num" id="goDemons">0</div><div class="go-lbl">打倒惡魔</div></div>
   </div>
   <a class="btn-cta-cw" href="https://www.cw.com.tw/payment" target="_blank" rel="noopener">📰 負責任的新聞　立刻觀看天下雜誌</a>
-  <button class="btn-go-retry" onclick="restart()">🔄 重新守護</button>
+  <button class="btn-go-retry" onclick="restart()">🔄 再試一次</button>
   <button class="btn-go-home" onclick="restart()">回到首頁</button>
 </div>
 
@@ -2358,7 +2358,7 @@ function showFeedback(ok, timeout) {
   const btn = document.getElementById('fbBtn');
   if (pendingGameOver)    { btn.textContent = '查看結果 →';     btn.className = 'btn-fb btn-fight'; }
   else if (pendingDemonBonus) { btn.textContent = '⚡ 開始加分挑戰！'; btn.className = 'btn-fb btn-fight'; }
-  else                    { btn.textContent = '繼續守護 →';     btn.className = 'btn-fb btn-next-q'; }
+  else                    { btn.textContent = '繼續挑戰 →';     btn.className = 'btn-fb btn-next-q'; }
 }
 
 function afterFeedback() {
