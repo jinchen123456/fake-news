@@ -844,7 +844,7 @@ html, body { height:100dvh; }
     <input class="name-input" id="playerNameInput" type="text" maxlength="10" placeholder="輸入你的名字上榜 ✍️">
     <button class="btn-lb-intro" onclick="showLeaderboard(false)">🏆 排行榜</button>
   </div>
-  <button class="btn-start" onclick="startGame()">開始守護 🛡️</button>
+  <button class="btn-start" onclick="startGame()">開始查真相 🛡️</button>
 </div>
 
 <!-- ══ GAME ════════════════════════════════════════════════ -->
@@ -926,8 +926,8 @@ html, body { height:100dvh; }
 
 <!-- ══ GAME OVER ═══════════════════════════════════════════ -->
 <div class="screen hidden" id="gameOver">
-  <div class="go-icon">💔</div>
-  <div class="go-title">免疫力尚需鍛鍊</div>
+  <div class="go-icon">💪</div>
+  <div class="go-title">又學會一招！</div>
   <div class="go-sub" id="goSub"></div>
   <div class="go-stats">
     <div class="go-stat"><div class="go-num" id="goCorrect">0</div><div class="go-lbl">答對題數</div></div>
@@ -3079,11 +3079,10 @@ function showFinal() {
   clearInterval(qTimer); clearInterval(dmTimer);
   const acc = Math.round((correct/TOTAL)*100);
   let medal, rank, stars;
-  if      (score >= 120){ medal='🏆'; rank='頂尖真假神探';   stars=3; }
-  else if (score >= 95 ){ medal='🥇'; rank='資深真假偵探';   stars=3; }
-  else if (score >= 70 ){ medal='🛡️'; rank='中階識假達人';   stars=2; }
-  else if (score >= 45 ){ medal='⚔️'; rank='見習識假達人';   stars=1; }
-  else                  { medal='🔰'; rank='新手學徒';       stars=0; }
+  if      (score >= 100){ medal='🏆'; rank='查證高手';               stars=3; }
+  else if (score >= 65 ){ medal='🥇'; rank='求證達人';               stars=2; }
+  else if (score >= 30 ){ medal='🛡️'; rank='學查證中';               stars=1; }
+  else                  { medal='🔰'; rank='謹慎起步的識假新手';     stars=0; }
 
   document.getElementById('finalMedal').textContent = medal;
   document.getElementById('finalRank').textContent  = rank;
@@ -3141,7 +3140,7 @@ function showFinal() {
 
   const brag = acc >= 90 ? `我拿下【${rank}】${'⭐'.repeat(stars)}，想超越我？沒那麼容易 😏`
              : acc >= 70 ? `我拿到【${rank}】${'⭐'.repeat(stars)}，聽說很少人能拿滿星，換你試試？`
-             : `我只拿到【${rank}】，不甘心！這些謠言太狡猾了，不信你來 😤`;
+             : `我拿到【${rank}】，這些假訊息真的很會騙！你也來練練眼力 👀`;
   shareText =
     `🚨 你的防騙免疫力夠強嗎？🚨\n` +
     `每天LINE群組收到的訊息，你分得出真假嗎？\n\n` +
@@ -3164,8 +3163,8 @@ function showGameOver() {
   document.getElementById('goScore').textContent   = score;
   document.getElementById('goDemons').textContent  = demKilled;
   document.getElementById('goSub').textContent = wrongCount >= 3
-    ? `答錯了3題，謠言趁虛而入...\n每一題的解析都是防騙抗體，再挑戰一次！`
-    : `分數歸零，免疫力耗盡...\n穩紮穩打，再試一次！`;
+    ? `這幾題確實不好認，連專家都要查證才敢下判斷。\n每一題的解析，都讓你下次更難被騙 👍`
+    : `穩紮穩打沒關係，慢慢看、慢慢想，才是對的方法。\n再來一次，你會更有把握 👍`;
   show('gameOver');
 }
 
