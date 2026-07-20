@@ -934,7 +934,7 @@ html, body { height:100dvh; }
     <div class="go-stat"><div class="go-num" id="goScore">0</div><div class="go-lbl">最終得分</div></div>
     <div class="go-stat"><div class="go-num" id="goDemons">0</div><div class="go-lbl">打倒惡魔</div></div>
   </div>
-  <a class="btn-cta-cw" href="https://www.cw.com.tw/payment" target="_blank" rel="noopener">📰 負責任的新聞　立刻觀看天下雜誌</a>
+  <a class="btn-cta-cw" href="https://www.cw.com.tw/payment" target="_blank" rel="noopener">📰 讓你安心的新聞來源，天下雜誌</a>
   <button class="btn-go-retry" onclick="restart()">🔄 再試一次</button>
   <button class="btn-go-home" onclick="restart()">回到首頁</button>
 </div>
@@ -955,7 +955,7 @@ html, body { height:100dvh; }
   <div class="share-card" id="shareCard"></div>
   <button class="btn-copy" onclick="copyShare()">📋 複製分享給家人</button>
   <button class="btn-copy" style="background:var(--orange-d);margin-bottom:12px" onclick="showLeaderboard(true)">🏆 上榜 / 看排行榜</button>
-  <a class="btn-cta-cw" href="https://www.cw.com.tw/payment" target="_blank" rel="noopener">📰 負責任的新聞　立刻觀看天下雜誌</a>
+  <a class="btn-cta-cw" href="https://www.cw.com.tw/payment" target="_blank" rel="noopener">📰 讓你安心的新聞來源，天下雜誌</a>
   <button class="btn-again" onclick="restart()">再玩一次</button>
 </div>
 
@@ -3138,18 +3138,13 @@ function showFinal() {
     reportEl.classList.add('hidden');
   }
 
-  const brag = acc >= 90 ? `我拿下【${rank}】${'⭐'.repeat(stars)}，想超越我？沒那麼容易 😏`
-             : acc >= 70 ? `我拿到【${rank}】${'⭐'.repeat(stars)}，聽說很少人能拿滿星，換你試試？`
-             : `我拿到【${rank}】，這些假訊息真的很會騙！你也來練練眼力 👀`;
+  const brag = acc >= 90 ? `我拿下【${rank}】${'⭐'.repeat(stars)}，換你試試 😏`
+             : acc >= 70 ? `我拿到【${rank}】${'⭐'.repeat(stars)}，你能拿滿星嗎？`
+             : `我拿到【${rank}】，你也來練練眼力 👀`;
   shareText =
-    `🚨 你的防騙免疫力夠強嗎？🚨\n` +
-    `每天LINE群組收到的訊息，你分得出真假嗎？\n\n` +
-    `${brag}\n\n` +
-    `📊 我的成績：${score}分｜正確率 ${acc}%\n` +
-    `🔨 擊退了 ${demKilled} 隻謠言惡魔\n\n` +
-    `⏱️ 一題只有9秒，答錯3次直接出局，\n` +
-    `很多題連我都差點被騙到...\n\n` +
-    `👉 玩「真的假的啦：不再被怪訊息迷惑」，看你能撐到第幾題！`;
+    `${brag}\n` +
+    `📊 ${score}分｜正確率 ${acc}%｜打倒 ${demKilled} 隻惡魔\n\n` +
+    `👉 玩「真的假的啦」，看你分得出真假嗎？`;
   document.getElementById('shareCard').textContent = shareText;
   pendingLbSave = { score, acc, correct, rank };
   show('final');
