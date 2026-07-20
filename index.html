@@ -286,8 +286,8 @@ html, body { height:100dvh; }
 @keyframes fbSlide { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
 .btn-fb { width:100%; padding:18px; border:none; border-radius:var(--r-full); font-size:20px; font-weight:800; cursor:pointer; transition:transform .12s; }
 .btn-fb:active { transform:scale(.96); }
-.btn-next-q { background:var(--positive); color:#fff; box-shadow:0 4px 14px rgba(90,165,114,.28); }
-.btn-fight  { background:var(--negative); color:#fff; box-shadow:0 4px 14px rgba(199,102,102,.28); }
+.btn-next-q { background:#2fa856; color:#fff; box-shadow:0 4px 14px rgba(47,168,86,.38); }
+.btn-fight  { background:#e0392e; color:#fff; box-shadow:0 4px 14px rgba(224,57,46,.38); }
 
 /* ─── DEMON SCREEN（極簡夜空）────────────────────── */
 #demonScreen {
@@ -555,7 +555,7 @@ html, body { height:100dvh; }
   transition:transform .12s;
 }
 .btn-final-primary:active { transform:scale(.96); }
-.btn-final-share { background:var(--brand); box-shadow:0 3px 12px rgba(200,22,28,.24); }
+.btn-final-share { background:var(--bg-card); color:var(--text); border:1px solid var(--border); box-shadow:var(--shadow-sm); }
 .btn-lb-link {
   background:transparent; color:var(--text-mid); border:none;
   font-size:15px; font-weight:600; cursor:pointer; display:block;
@@ -998,7 +998,6 @@ html, body { height:100dvh; }
     <div class="fs"><div class="fs-num" id="fScore">0</div><div class="fs-lbl">得分</div></div>
     <div class="fs"><div class="fs-num" id="fDemons">0</div><div class="fs-lbl">打倒惡魔</div></div>
   </div>
-  <div id="reportSection" class="report-section hidden"></div>
   <div class="share-card" id="shareCard"></div>
   <div class="final-actions">
     <button class="btn-final-primary" onclick="restart()">再試一次</button>
@@ -2386,7 +2385,7 @@ function showFeedback(ok, timeout) {
   let em, title;
   if (ok) {
     em = '✅';
-    if (pendingDemonBonus) title = `🎉 連答2題！獲得加分挑戰！`;
+    if (pendingDemonBonus) title = `連答2題！獲得加分挑戰！`;
     else if (streak >= 3)  title = `🔥 答對！連答${streak}題！`;
     else                   title = '答對了！+10分 👍';
   } else {
@@ -2412,7 +2411,7 @@ function showFeedback(ok, timeout) {
   tog.firstChild.textContent = '看詳細解析 ';
   const btn = document.getElementById('fbBtn');
   if (pendingGameOver)    { btn.textContent = '查看結果 →';     btn.className = 'btn-fb btn-fight'; }
-  else if (pendingDemonBonus) { btn.textContent = '⚡ 開始加分挑戰！'; btn.className = 'btn-fb btn-fight'; }
+  else if (pendingDemonBonus) { btn.textContent = '開始加分挑戰！'; btn.className = 'btn-fb btn-fight'; }
   else                    { btn.textContent = '繼續挑戰 →';     btn.className = 'btn-fb btn-next-q'; }
 }
 
@@ -3168,49 +3167,13 @@ function showFinal() {
   document.getElementById('fScore').textContent   = score;
   document.getElementById('fDemons').textContent  = demKilled;
 
-  // 防騙免疫力分析
-  const reportEl = document.getElementById('reportSection');
-  const catEntries = Object.entries(catStats).filter(([,v]) => v.t > 0);
-  if (catEntries.length > 0) {
-    reportEl.classList.remove('hidden');
-    let bestKey = null, worstKey = null, bestAcc = -1, worstAcc = 101;
-    catEntries.forEach(([key, v]) => {
-      const a = v.t > 0 ? Math.round(v.c / v.t * 100) : 0;
-      if (a > bestAcc) { bestAcc = a; bestKey = key; }
-      if (a < worstAcc) { worstAcc = a; worstKey = key; }
-    });
-    let rHtml = `<div class="report-title">📋 防騙免疫力分析</div>`;
-    catEntries.forEach(([key, v]) => {
-      const a = v.t > 0 ? Math.round(v.c / v.t * 100) : 0;
-      const col = a >= 80 ? '#538d4e' : a >= 50 ? '#b59f3b' : '#b02020';
-      const cl = CAT_LABELS[key] || { icon:'', name: key };
-      rHtml += `<div class="report-cat-row">
-        <div class="report-cat-label">${cl.icon} ${cl.name}</div>
-        <div class="report-bar-outer"><div class="report-bar-fill" style="width:${a}%;background:${col}"></div></div>
-        <div class="report-bar-pct">${a}%</div>
-      </div>`;
-    });
-    rHtml += `<div class="report-highlights">`;
-    const bcl = CAT_LABELS[bestKey] || { icon:'', name: bestKey };
-    rHtml += `<div class="report-hl best"><div class="report-hl-label">擅長項目</div><div class="report-hl-val">${bcl.icon} ${bcl.name}<br>${bestAcc}% 正確</div></div>`;
-    if (worstKey && worstKey !== bestKey) {
-      const wcl = CAT_LABELS[worstKey] || { icon:'', name: worstKey };
-      rHtml += `<div class="report-hl warn"><div class="report-hl-label">需多注意</div><div class="report-hl-val">${wcl.icon} ${wcl.name}<br>${worstAcc}% 正確</div></div>`;
-    }
-    rHtml += `</div>`;
-    reportEl.innerHTML = rHtml;
-  } else {
-    reportEl.classList.add('hidden');
-  }
-
   const brag = acc >= 90 ? `我是【${rank}】${'⭐'.repeat(stars)}，換你試試 😏`
              : acc >= 70 ? `我是【${rank}】${'⭐'.repeat(stars)}，你能拿滿星嗎？`
              : `我是【${rank}】，你也來練練眼力 👀`;
   shareText =
     `${brag}\n` +
     `📊 ${score}分｜正確率 ${acc}%｜打倒 ${demKilled} 隻惡魔\n\n` +
-    `👉 玩「真的假的啦」，看你分得出真假嗎？\n` +
-    `https://jinchen123456.github.io/fake-news/`;
+    `👉 玩「真的假的啦」，看你分得出真假嗎？`;
   document.getElementById('shareCard').textContent = shareText;
   pendingLbSave = { score, acc, correct, rank };
   show('final');
