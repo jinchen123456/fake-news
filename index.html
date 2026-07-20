@@ -3138,13 +3138,14 @@ function showFinal() {
     reportEl.classList.add('hidden');
   }
 
-  const brag = acc >= 90 ? `我拿下【${rank}】${'⭐'.repeat(stars)}，換你試試 😏`
-             : acc >= 70 ? `我拿到【${rank}】${'⭐'.repeat(stars)}，你能拿滿星嗎？`
-             : `我拿到【${rank}】，你也來練練眼力 👀`;
+  const brag = acc >= 90 ? `我是【${rank}】${'⭐'.repeat(stars)}，換你試試 😏`
+             : acc >= 70 ? `我是【${rank}】${'⭐'.repeat(stars)}，你能拿滿星嗎？`
+             : `我是【${rank}】，你也來練練眼力 👀`;
   shareText =
     `${brag}\n` +
     `📊 ${score}分｜正確率 ${acc}%｜打倒 ${demKilled} 隻惡魔\n\n` +
-    `👉 玩「真的假的啦」，看你分得出真假嗎？`;
+    `👉 玩「真的假的啦」，看你分得出真假嗎？\n` +
+    `https://jinchen123456.github.io/fake-news/`;
   document.getElementById('shareCard').textContent = shareText;
   pendingLbSave = { score, acc, correct, rank };
   show('final');
