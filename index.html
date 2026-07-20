@@ -132,46 +132,34 @@ html, body { height:100dvh; }
 #game { background:var(--bg); flex-direction:column; justify-content:flex-start; overflow:hidden; }
 
 .game-hdr {
-  width:100%; background:var(--bg-card); padding:12px 18px 10px;
-  padding-top: max(12px, env(safe-area-inset-top));
+  width:100%; background:var(--bg-card); padding:8px 16px 6px;
+  padding-top: max(8px, env(safe-area-inset-top));
   box-shadow:0 2px 12px var(--shadow);
   flex-shrink:0; z-index:5;
 }
-.hdr-row1 { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
-.gd-label { font-size:13px; color:var(--text-soft); font-weight:800; white-space:nowrap; }
-.gd-track { flex:1; background:var(--bg-mid); border-radius:20px; height:12px; overflow:hidden; }
-.gd-fill { height:100%; border-radius:20px; transition:width .6s cubic-bezier(.25,.46,.45,.94), background .5s; position:relative; overflow:hidden; }
-.gd-fill::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent); animation:shimmer 2s linear infinite; }
-@keyframes shimmer { from{transform:translateX(-100%)} to{transform:translateX(200%)} }
+.hdr-row1 { display:flex; align-items:center; gap:10px; }
 .score-badge {
-  background:var(--brand); color:#fff; border-radius:999px; padding:6px 16px;
-  font-size:15px; font-weight:900; white-space:nowrap; min-width:58px; text-align:center;
-  box-shadow:0 3px 10px rgba(215,25,32,.35);
+  background:var(--brand); color:#fff; border-radius:999px; padding:3px 11px;
+  font-size:13px; font-weight:900; white-space:nowrap; min-width:46px; text-align:center;
+  box-shadow:0 2px 6px rgba(215,25,32,.28);
 }
-.q-counter { font-size:13px; color:var(--text-soft); font-weight:700; white-space:nowrap; }
+.q-counter { font-size:12px; color:var(--text-soft); font-weight:800; white-space:nowrap; margin-left:auto; }
 
-.progress-dots { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:4px; }
-.dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:background .3s, transform .25s; }
-.dot.done { background:var(--green); transform:scale(1.1); }
-.dot.cur  { background:var(--yellow); transform:scale(1.35); animation:dotPulse .7s ease-in-out infinite alternate; }
-.dot.fail { background:var(--red); transform:scale(1.1); }
-@keyframes dotPulse { from{opacity:.7} to{opacity:1} }
-
-.streak-zone { min-height:20px; }
+.streak-zone { min-height:0; }
 .streak-chip {
   display:inline-flex; align-items:center; gap:4px;
   background:var(--bg-hi); color:var(--green-d);
-  border-radius:999px; padding:4px 14px;
-  font-size:13px; font-weight:800;
+  border-radius:999px; padding:3px 12px;
+  font-size:12px; font-weight:800;
+  margin-top:4px;
   animation:chipBounce .35s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes chipBounce { from{transform:scale(.6)} to{transform:scale(1)} }
 
-/* 計時條 */
-.timer-zone { width:100%; padding:8px 18px 0; flex-shrink:0; }
-.timer-bar-outer { background:var(--bg-mid); border-radius:20px; height:8px; overflow:hidden; }
+/* 計時條（薄）*/
+.timer-bar-outer { background:var(--bg-mid); border-radius:20px; height:4px; overflow:hidden; margin-top:6px; }
 .timer-fill { height:100%; border-radius:20px; transition:width .18s linear, background .45s; }
-.timer-digits { text-align:right; font-size:17px; color:var(--text-mid); margin-top:4px; font-weight:900; }
+.timer-digits { font-size:13px; color:var(--text-mid); font-weight:900; white-space:nowrap; }
 .timer-urgent { animation:timerJitter .12s infinite alternate; }
 @keyframes timerJitter { from{transform:translateX(-1px)} to{transform:translateX(1px)} }
 
@@ -266,8 +254,22 @@ html, body { height:100dvh; }
 .fb-tip {
   background:var(--bg-hi); border-radius:16px; padding:13px 16px;
   border-left:4px solid var(--green);
-  font-size:15px; color:var(--text-mid); line-height:1.7; margin-bottom:16px; font-weight:600;
+  font-size:15px; color:var(--text-mid); line-height:1.7; margin-bottom:14px; font-weight:600;
 }
+.fb-toggle {
+  width:100%; padding:10px 14px; background:transparent;
+  border:1px dashed var(--border); border-radius:14px;
+  font-family:inherit; font-size:13px; font-weight:800; color:var(--text-soft);
+  letter-spacing:1px; cursor:pointer; margin-bottom:14px;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  transition:background .18s, color .18s, border-color .18s;
+}
+.fb-toggle:active { transform:scale(.98); }
+.fb-toggle.open { color:var(--text-mid); border-color:var(--text-soft); }
+.fb-toggle-arrow { display:inline-block; transition:transform .22s ease; }
+.fb-toggle.open .fb-toggle-arrow { transform:rotate(180deg); }
+.fb-details { animation:fbSlide .22s ease-out; }
+@keyframes fbSlide { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
 .btn-fb { width:100%; padding:18px; border:none; border-radius:999px; font-size:19px; font-weight:900; cursor:pointer; transition:transform .12s; }
 .btn-fb:active { transform:scale(.96); }
 .btn-next-q { background:var(--green); color:#fff; box-shadow:0 6px 18px rgba(81,193,81,.4); }
@@ -588,8 +590,8 @@ html, body { height:100dvh; }
 }
 
 /* ─── WRONG COUNTER ─────────────────── */
-.wrong-row { display:flex; align-items:center; gap:5px; }
-.wm { font-size:19px; transition:transform .25s; color:var(--border); }
+.wrong-row { display:flex; align-items:center; gap:3px; }
+.wm { font-size:15px; transition:transform .25s; color:var(--border); }
 .wm.hit { color:var(--red); transform:scale(1.2); }
 
 .name-row {
@@ -851,7 +853,6 @@ html, body { height:100dvh; }
 <div class="screen hidden" id="game">
   <div class="game-hdr">
     <div class="hdr-row1">
-      <div class="gd-label">答錯</div>
       <div class="wrong-row" id="wrongRow">
         <span class="wm" id="wm0">○</span>
         <span class="wm" id="wm1">○</span>
@@ -859,13 +860,10 @@ html, body { height:100dvh; }
       </div>
       <div class="score-badge" id="scoreBadge">0分</div>
       <div class="q-counter" id="qCounter">1/10</div>
+      <div class="timer-digits" id="timerDigits">12"</div>
     </div>
-    <div class="progress-dots" id="progDots"></div>
-    <div class="streak-zone" id="streakZone"></div>
-  </div>
-  <div class="timer-zone">
     <div class="timer-bar-outer"><div class="timer-fill" id="timerFill" style="width:100%"></div></div>
-    <div class="timer-digits" id="timerDigits">12 秒</div>
+    <div class="streak-zone" id="streakZone"></div>
   </div>
   <div class="chat-bg" id="chatBg"></div>
   <div class="ans-zone">
@@ -882,15 +880,18 @@ html, body { height:100dvh; }
       <div class="fb-title" id="fbTitle"></div>
     </div>
     <div class="fb-body">
-      <div class="fb-label">說明</div>
-      <div class="fb-why" id="fbWhy"></div>
       <div class="fb-label">小提示</div>
       <div class="fb-tip" id="fbTip"></div>
-      <div class="fb-analysis">
-        <div class="fb-analysis-label">謠言手法分析</div>
-        <div class="trick-row">
-          <span class="trick-chip" id="trickChip"></span>
-          <span class="trick-rule" id="trickRule"></span>
+      <button class="fb-toggle" id="fbToggle" onclick="toggleAnalysis()" type="button">看詳細解析 <span class="fb-toggle-arrow">▼</span></button>
+      <div class="fb-details hidden" id="fbDetails">
+        <div class="fb-label">說明</div>
+        <div class="fb-why" id="fbWhy"></div>
+        <div class="fb-analysis">
+          <div class="fb-analysis-label">謠言手法分析</div>
+          <div class="trick-row">
+            <span class="trick-chip" id="trickChip"></span>
+            <span class="trick-rule" id="trickRule"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -2262,7 +2263,7 @@ function renderTimer() {
   fill.style.width = pct + '%';
   fill.style.background = col;
   const dEl = document.getElementById('timerDigits');
-  dEl.textContent = timeLeft + ' 秒';
+  dEl.textContent = timeLeft + '"';
   dEl.style.color = timeLeft <= 3 ? '#d13430' : '#4a6a52';
   dEl.style.fontWeight = '900';
   if (timeLeft <= 3) dEl.classList.add('timer-urgent');
@@ -2355,10 +2356,25 @@ function showFeedback(ok, timeout) {
   chipEl.textContent = trick.icon + ' ' + trick.name;
   chipEl.className = 'trick-chip' + (pendingQ.real ? ' real-chip' : '');
   document.getElementById('trickRule').textContent = trick.rule;
+  // 每題重置：詳細解析預設收合
+  const det = document.getElementById('fbDetails');
+  const tog = document.getElementById('fbToggle');
+  det.classList.add('hidden');
+  tog.classList.remove('open');
+  tog.firstChild.textContent = '看詳細解析 ';
   const btn = document.getElementById('fbBtn');
   if (pendingGameOver)    { btn.textContent = '查看結果 →';     btn.className = 'btn-fb btn-fight'; }
   else if (pendingDemonBonus) { btn.textContent = '⚡ 開始加分挑戰！'; btn.className = 'btn-fb btn-fight'; }
   else                    { btn.textContent = '繼續挑戰 →';     btn.className = 'btn-fb btn-next-q'; }
+}
+
+function toggleAnalysis() {
+  const det = document.getElementById('fbDetails');
+  const tog = document.getElementById('fbToggle');
+  const willOpen = det.classList.contains('hidden');
+  det.classList.toggle('hidden');
+  tog.classList.toggle('open', willOpen);
+  tog.firstChild.textContent = willOpen ? '收合詳細解析 ' : '看詳細解析 ';
 }
 
 function afterFeedback() {
@@ -3012,6 +3028,7 @@ function updateStreak() {
 
 function buildDots() {
   const wrap = document.getElementById('progDots');
+  if (!wrap) return;
   wrap.innerHTML = '';
   for (let i = 0; i < TOTAL; i++) {
     const d = document.createElement('div');
