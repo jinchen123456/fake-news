@@ -549,13 +549,12 @@ html, body { height:100dvh; }
 /* Final page side-by-side actions */
 .final-actions { display:flex; gap:10px; margin-bottom:12px; }
 .btn-final-primary {
-  flex:1; background:var(--text); color:#fff; border:none;
-  border-radius:var(--r-full); padding:16px 12px; font-size:18px; font-weight:800; cursor:pointer;
-  box-shadow:0 3px 12px rgba(30,36,41,.18);
+  flex:1; background:var(--bg-card); color:var(--text); border:1px solid var(--border);
+  border-radius:var(--r-full); padding:16px 12px; font-size:18px; font-weight:700; cursor:pointer;
+  box-shadow:var(--shadow-sm);
   transition:transform .12s;
 }
 .btn-final-primary:active { transform:scale(.96); }
-.btn-final-share { background:var(--bg-card); color:var(--text); border:1px solid var(--border); box-shadow:var(--shadow-sm); }
 .btn-lb-link {
   background:transparent; color:var(--text-mid); border:none;
   font-size:15px; font-weight:600; cursor:pointer; display:block;
@@ -981,7 +980,7 @@ html, body { height:100dvh; }
     <div class="go-stat"><div class="go-num" id="goScore">0</div><div class="go-lbl">最終得分</div></div>
     <div class="go-stat"><div class="go-num" id="goDemons">0</div><div class="go-lbl">打倒惡魔</div></div>
   </div>
-  <a class="btn-cta-cw" href="https://www.cw.com.tw/payment" target="_blank" rel="noopener">📰 讓你安心的新聞來源，天下雜誌</a>
+  <a class="btn-cta-cw" href="https://www.cw.com.tw/payment" target="_blank" rel="noopener">值得信任的新聞，天下雜誌</a>
   <button class="btn-go-retry" onclick="restart()">🔄 再試一次</button>
   <button class="btn-go-home" onclick="restart()">回到首頁</button>
 </div>
@@ -1004,7 +1003,7 @@ html, body { height:100dvh; }
     <button class="btn-final-primary btn-final-share" onclick="copyShare()">分享朋友</button>
   </div>
   <button class="btn-lb-link" onclick="showLeaderboard(true)">查看排行榜</button>
-  <a class="btn-cta-cw" href="https://www.cw.com.tw/payment" target="_blank" rel="noopener">讓你安心的新聞來源，天下雜誌</a>
+  <a class="btn-cta-cw" href="https://www.cw.com.tw/payment" target="_blank" rel="noopener">值得信任的新聞，天下雜誌</a>
 </div>
 
 <!-- ══ LEADERBOARD ═════════════════════════════════════════ -->
