@@ -867,7 +867,7 @@ html, body { height:100dvh; }
   <div class="steps-box">
     <div class="step-row"><div class="step-num">1</div><div class="step-txt">判斷訊息真假，答對 <b>+10分</b></div></div>
     <div class="step-row"><div class="step-num">2</div><div class="step-txt">連對2題 ⚡ 打惡魔賺加分</div></div>
-    <div class="step-row"><div class="step-num">3</div><div class="step-txt">答錯 <b>-10分</b>，錯3次或歸零結束</div></div>
+    <div class="step-row"><div class="step-num">3</div><div class="step-txt">答錯 <b>-10分</b>，錯3次結束</div></div>
   </div>
   <div class="name-row">
     <input class="name-input" id="playerNameInput" type="text" maxlength="10" placeholder="輸入你的名字上榜 ✍️">
@@ -2248,7 +2248,7 @@ function startGame() {
 
 function nextQ() {
   if (qi >= TOTAL) { launchFinalBonus(); return; }
-  if (wrongCount >= 3 || (score <= 0 && wrongCount > 0)) { showGameOver(); return; }
+  if (wrongCount >= 3) { showGameOver(); return; }
   state = 'question';
   const q = sessionQ[qi];
   document.getElementById('qCounter').textContent = `${qi+1}/${TOTAL}`;
@@ -2308,7 +2308,7 @@ function applyWrong() {
   showBigPop('-10分', 'life');
   flash('rgba(220,0,0,0.28)', 600);
   pendingDemonBonus = false;
-  if (wrongCount >= 3 || score <= 0) pendingGameOver = true;
+  if (wrongCount >= 3) pendingGameOver = true;
 }
 
 function timeoutQ() {
